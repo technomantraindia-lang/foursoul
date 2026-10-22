@@ -66,6 +66,12 @@ RUN cp -r frontend/dist/* public/
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
+# PHP performance and upload limits
+RUN echo "memory_limit = 512M" > /usr/local/etc/php/conf.d/docker-php-settings.ini && \
+    echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/docker-php-settings.ini && \
+    echo "post_max_size = 50M" >> /usr/local/etc/php/conf.d/docker-php-settings.ini
 
 # Fix permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
