@@ -56,6 +56,10 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV APP_ENV=production
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
+# Publish Filament and Livewire assets
+RUN php artisan filament:assets || true
+RUN php artisan livewire:publish --assets || true
+
 # Build React frontend
 RUN npm --prefix frontend install && npm --prefix frontend run build
 

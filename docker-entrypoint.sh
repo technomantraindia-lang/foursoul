@@ -61,9 +61,16 @@ php artisan view:clear || true
 # Create storage symlink
 php artisan storage:link --force || true
 
+# Publish Filament and Livewire assets
+php artisan filament:assets || true
+php artisan livewire:publish --assets || true
+
 # Run database migrations and seeding
 php artisan migrate --force || true
 php artisan db:seed --force || true
+
+# Ensure web server can read all public assets
+chown -R www-data:www-data /var/www/html/public
 
 echo "Starting FourSouls (Laravel + Filament + React) on port $PORT..."
 exec apache2-foreground
