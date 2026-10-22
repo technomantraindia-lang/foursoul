@@ -41,6 +41,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             FaqAndFrontendPlanSeeder::class,
+            MembershipDummyDataSeeder::class,
+            PlatformFullDataSeeder::class,
         ]);
     }
 }
