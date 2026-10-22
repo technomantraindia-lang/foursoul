@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+umask 000
 
 # Configure Apache port based on Render's $PORT env (defaults to 10000)
 PORT="${PORT:-10000}"
@@ -16,12 +17,19 @@ DB_DATABASE="${DB_DATABASE:-/var/www/html/database/database.sqlite}"
 if [ "$DB_CONNECTION" = "sqlite" ]; then
     mkdir -p /var/www/html/database
     touch /var/www/html/database/database.sqlite
-    chown -R www-data:www-data /var/www/html/database
     chmod -R 777 /var/www/html/database
     chmod 666 /var/www/html/database/database.sqlite
 fi
 
-# Write .env file so Apache and Laravel have all necessary environment variables
+# Ensure storage directories exist with write permissions
+mkdir -p /var/www/html/storage/framework/cache/data
+mkdir -p /var/www/html/storage/framework/sessions
+mkdir -p /var/www/html/storage/framework/views
+mkdir -p /var/www/html/storage/app/public/blog-images
+mkdir -p /var/www/html/bootstrap/cache
+chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Write .env file using database cache to eliminate any cache file permission errors
 cat <<EOF > /var/www/html/.env
 APP_NAME=FourSouls
 APP_ENV=production
@@ -37,21 +45,12 @@ DB_DATABASE=${DB_DATABASE}
 
 SESSION_DRIVER=file
 SESSION_LIFETIME=120
-CACHE_STORE=file
+CACHE_STORE=database
 QUEUE_CONNECTION=sync
 FILESYSTEM_DISK=public
 EOF
 
-chown www-data:www-data /var/www/html/.env
-chmod 644 /var/www/html/.env
-
-# Ensure storage directories exist with write permissions
-mkdir -p /var/www/html/storage/framework/cache/data
-mkdir -p /var/www/html/storage/framework/sessions
-mkdir -p /var/www/html/storage/framework/views
-mkdir -p /var/www/html/storage/app/public/blog-images
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+chmod 666 /var/www/html/.env
 
 # Clear all caches so fresh config is read
 php artisan config:clear || true
@@ -61,16 +60,20 @@ php artisan view:clear || true
 # Create storage symlink
 php artisan storage:link --force || true
 
-# Publish Filament and Livewire assets
-php artisan filament:assets || true
-php artisan livewire:publish --assets || true
-
 # Run database migrations and seeding
 php artisan migrate --force || true
 php artisan db:seed --force || true
 
-# Ensure web server can read all public assets
-chown -R www-data:www-data /var/www/html/public
+# Publish Filament and Livewire assets
+php artisan filament:assets || true
+php artisan livewire:publish --assets || true
+
+# Final permission fix: guarantee www-data ownership and 777 permissions across storage and database
+find /var/www/html/storage -type d -exec chmod 777 {} + 2>/dev/null || true
+find /var/www/html/storage -type f -exec chmod 666 {} + 2>/dev/null || true
+find /var/www/html/database -type d -exec chmod 777 {} + 2>/dev/null || true
+find /var/www/html/database -type f -exec chmod 666 {} + 2>/dev/null || true
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database /var/www/html/public
 
 echo "Starting FourSouls (Laravel + Filament + React) on port $PORT..."
 exec apache2-foreground
