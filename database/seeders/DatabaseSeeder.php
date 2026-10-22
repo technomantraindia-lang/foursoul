@@ -25,5 +25,22 @@ class DatabaseSeeder extends Seeder
             SettingsSeeder::class,
             RolesAndPermissionsSeeder::class,
         ]);
+
+        $admin = \App\Models\Admin::firstOrNew(['email' => 'admin@foursouls.test']);
+        if (! $admin->exists) {
+            $admin->uuid = (string) \Illuminate\Support\Str::uuid();
+        }
+        $admin->fill([
+            'name' => 'Super Admin',
+            'password' => 'password',
+            'status' => \App\Enums\AdminStatus::Active,
+            'two_factor_enabled' => false,
+        ]);
+        $admin->save();
+        $admin->assignRole(\App\Enums\AdminRole::SuperAdmin->value);
+
+        $this->call([
+            FaqAndFrontendPlanSeeder::class,
+        ]);
     }
 }

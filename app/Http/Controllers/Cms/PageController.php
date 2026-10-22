@@ -9,7 +9,7 @@ use Illuminate\View\View;
 
 class PageController extends Controller
 {
-    public function show(string $slug): View
+    public function show(string $slug): mixed
     {
         $page = Page::query()
             ->where('slug', $slug)
@@ -17,10 +17,18 @@ class PageController extends Controller
             ->where('visibility', 'public')
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
-            ->firstOrFail();
+            ->first();
 
-        return view('cms.page', [
-            'page' => $page,
-        ]);
+        if ($page) {
+            return view('cms.page', [
+                'page' => $page,
+            ]);
+        }
+
+        if (file_exists(public_path('index.html'))) {
+            return response()->file(public_path('index.html'));
+        }
+
+        abort(404);
     }
 }

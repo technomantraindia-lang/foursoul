@@ -46,6 +46,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', static function () {
+    if (file_exists(public_path('index.html'))) {
+        return response()->file(public_path('index.html'));
+    }
     return redirect('/admin');
 })->name('home');
 
@@ -283,3 +286,10 @@ Route::get('/pages/{slug}', [PageController::class, 'show'])
 Route::get('/{slug}', [PageController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('cms.page.show');
+
+Route::fallback(static function () {
+    if (file_exists(public_path('index.html'))) {
+        return response()->file(public_path('index.html'));
+    }
+    abort(404);
+});
