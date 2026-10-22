@@ -1,0 +1,9 @@
+@extends('layouts.app')
+@section('title', 'Renew Access')
+@section('content')
+<div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8"><p class="fs-kicker">Account access</p><h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900">Renew access</h1>
+    @if (! $subscription)<div class="fs-empty-state mt-8"><h2 class="text-lg font-semibold text-gray-900">You don't have an active subscription.</h2><a class="btn btn-primary mt-5" href="{{ route('plans.index') }}">View plans</a></div>
+    @elseif (! $eligible)<div class="fs-surface mt-8 p-6"><h2 class="text-xl font-semibold text-gray-900">Your subscription does not need renewal yet.</h2><p class="mt-2 text-sm text-gray-600">Your current access remains available through {{ $subscription->expires_at?->format('M j, Y') ?? 'your lifetime plan' }}.</p><a class="btn btn-secondary mt-5" href="{{ route('subscription.show') }}">Back to subscription</a></div>
+    @else<div class="fs-surface mt-8 p-6 sm:p-8"><h2 class="text-xl font-semibold text-gray-900">{{ $subscription->plan?->name ?? 'Subscription' }}</h2><p class="mt-2 text-sm text-gray-600">Your progress and course history are preserved. This internal renewal action restores access using the existing renewal service.</p><div class="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"><strong>Live payment:</strong> blocked until a provider is selected. This is an internal test/manual renewal flow; no gateway charge is attempted.</div><div class="mt-6 flex flex-wrap gap-3"><a class="btn btn-secondary" href="{{ route('subscription.show') }}">Back to subscription</a><form method="POST" action="{{ route('subscription.renew.store') }}">@csrf<button class="btn btn-primary" type="submit">Renew access</button></form><a class="btn btn-secondary" href="{{ route('plans.index') }}">View plans</a></div></div>@endif
+</div>
+@endsection

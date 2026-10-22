@@ -1,0 +1,354 @@
+# Technomantra Project Memory
+
+> This is a persistent locator map, not a claim that file contents are current. Read each target only once per task and rely on normal invalidation after edits.
+
+- Workspace: foursouls
+- Technology: Vite, Tailwind CSS, Node.js/npm, Laravel/PHP
+- Active file at refresh: None
+- Local code graph: 177 files · 117 edges · 0 matched flows
+- Refreshed: 2026-08-26T09:40:51.834Z
+
+## Framework Intelligence (V4.7.8)
+- Profiles: laravel
+- Package manager: npm
+- Laravel requirement: ^13.17
+
+### Entry / bootstrap candidates
+- artisan
+- routes/web.php
+- public/index.php
+
+### Laravel route / class / method symbols
+- app/Filament/Pages/AdminProfile.php: class AdminProfile, form(), handleRecordUpdate()
+- app/Filament/Pages/AnalyticsDashboard.php: class AnalyticsDashboard, mount(), loadData(), export(), getFormSchema()
+- app/Filament/Pages/Auth/AdminLogin.php: class AdminLogin, getHeading(), getSubHeading(), getGuardName(), authenticate(), getEmailFormComponent()
+- app/Filament/Resources/AssignmentResource.php: class AssignmentResource
+- app/Filament/Resources/AssignmentResource/Pages/CreateAssignment.php: class CreateAssignment, mutateFormDataBeforeCreate()
+- app/Filament/Resources/AssignmentResource/Pages/EditAssignment.php: class EditAssignment, getHeaderActions()
+- app/Filament/Resources/AssignmentResource/Pages/ListAssignments.php: class ListAssignments, getHeaderActions()
+- app/Filament/Resources/BlogPostResource.php: class BlogPostResource
+- app/Filament/Resources/BlogPostResource/Pages/CreateBlogPost.php: class CreateBlogPost, mutateFormDataBeforeCreate(), getCreatedNotificationTitle()
+- app/Filament/Resources/BlogPostResource/Pages/EditBlogPost.php: class EditBlogPost, getHeaderActions()
+- app/Filament/Resources/BlogPostResource/Pages/ListBlogPosts.php: class ListBlogPosts, getHeaderActions()
+- app/Filament/Resources/CertificateTemplateResource.php: class CertificateTemplateResource
+- app/Filament/Resources/CertificateTemplateResource/Pages/CreateCertificateTemplate.php: class CreateCertificateTemplate
+- app/Filament/Resources/CertificateTemplateResource/Pages/EditCertificateTemplate.php: class EditCertificateTemplate, getHeaderActions()
+- app/Filament/Resources/CertificateTemplateResource/Pages/ListCertificateTemplates.php: class ListCertificateTemplates, getHeaderActions()
+- app/Filament/Resources/CourseResource.php: class CourseResource
+- app/Filament/Resources/CourseResource/Pages/CreateCourse.php: class CreateCourse, mutateFormDataBeforeCreate(), getCreateFormAction()
+- app/Filament/Resources/CourseResource/Pages/EditCourse.php: class EditCourse, getHeaderActions()
+- app/Filament/Resources/CourseResource/Pages/ListCourses.php: class ListCourses, getHeaderActions()
+- app/Filament/Resources/CourseResource/RelationManagers/SectionsRelationManager.php: class SectionsRelationManager, form(), table()
+- app/Filament/Resources/CourseSectionResource.php: class CourseSectionResource
+- app/Filament/Resources/CourseSectionResource/Pages/EditCourseSection.php: class EditCourseSection, getHeaderActions()
+- app/Filament/Resources/CourseSectionResource/Pages/ListCourseSections.php: class ListCourseSections, getHeaderActions(), getTabs()
+- app/Filament/Resources/CourseSectionResource/RelationManagers/LessonsRelationManager.php: class LessonsRelationManager, form(), table()
+- app/Filament/Resources/MediaResource.php: class MediaResource
+- app/Filament/Resources/MediaResource/Pages/CreateMedia.php: class CreateMedia, mutateFormDataBeforeCreate()
+- app/Filament/Resources/MediaResource/Pages/EditMedia.php: class EditMedia, getHeaderActions()
+- app/Filament/Resources/MediaResource/Pages/ListMedia.php: class ListMedia, getHeaderActions()
+- app/Filament/Resources/PageResource.php: class PageResource
+- app/Filament/Resources/PageResource/Pages/CreatePage.php: class CreatePage, getHeaderActions()
+- app/Filament/Resources/PageResource/Pages/EditPage.php: class EditPage, getHeaderActions()
+- app/Filament/Resources/PageResource/Pages/ListPages.php: class ListPages, getHeaderActions()
+- app/Filament/Resources/QuestionResource.php: class QuestionResource
+- app/Filament/Resources/QuestionResource/Pages/CreateQuestion.php: class CreateQuestion
+- app/Filament/Resources/QuestionResource/Pages/EditQuestion.php: class EditQuestion, getHeaderActions()
+- app/Filament/Resources/QuestionResource/Pages/ListQuestions.php: class ListQuestions, getHeaderActions()
+
+### Laravel controller/service/model chains
+- app/Filament/Pages/AnalyticsDashboard.php -> app/Services/Analytics/DashboardService.php, app/Services/Analytics/ExportService.php, app/Services/Analytics/KpiService.php
+- app/Filament/Resources/AssignmentResource.php -> app/Models/Assignment.php, app/Models/CourseLesson.php
+- app/Filament/Resources/AssignmentResource/Pages/CreateAssignment.php -> app/Filament/Resources/AssignmentResource.php
+- app/Filament/Resources/AssignmentResource/Pages/EditAssignment.php -> app/Filament/Resources/AssignmentResource.php
+- app/Filament/Resources/AssignmentResource/Pages/ListAssignments.php -> app/Filament/Resources/AssignmentResource.php
+- app/Filament/Resources/BlogPostResource.php -> app/Filament/Resources/BlogPostResource/Pages.php, app/Models/BlogCategory.php, app/Models/BlogPost.php
+- app/Filament/Resources/BlogPostResource/Pages/CreateBlogPost.php -> app/Filament/Resources/BlogPostResource.php
+- app/Filament/Resources/BlogPostResource/Pages/EditBlogPost.php -> app/Filament/Resources/BlogPostResource.php
+- app/Filament/Resources/BlogPostResource/Pages/ListBlogPosts.php -> app/Filament/Resources/BlogPostResource.php
+- app/Filament/Resources/CertificateTemplateResource.php -> app/Models/CertificateTemplate.php
+- app/Filament/Resources/CertificateTemplateResource/Pages/CreateCertificateTemplate.php -> app/Filament/Resources/CertificateTemplateResource.php
+- app/Filament/Resources/CertificateTemplateResource/Pages/EditCertificateTemplate.php -> app/Filament/Resources/CertificateTemplateResource.php
+- app/Filament/Resources/CertificateTemplateResource/Pages/ListCertificateTemplates.php -> app/Filament/Resources/CertificateTemplateResource.php
+- app/Filament/Resources/CourseResource.php -> app/Filament/Resources/CourseResource/Pages.php, app/Filament/Resources/CourseResource/RelationManagers.php, app/Models/Course.php
+- app/Filament/Resources/CourseResource/Pages/CreateCourse.php -> app/Filament/Resources/CourseResource.php
+- app/Filament/Resources/CourseResource/Pages/EditCourse.php -> app/Filament/Resources/CourseResource.php
+- app/Filament/Resources/CourseResource/Pages/ListCourses.php -> app/Filament/Resources/CourseResource.php
+- app/Filament/Resources/CourseResource/RelationManagers/SectionsRelationManager.php -> app/Filament/Resources/CourseSectionResource.php
+- app/Filament/Resources/CourseSectionResource.php -> app/Filament/Resources/CourseSectionResource/Pages.php, app/Models/CourseSection.php
+- app/Filament/Resources/CourseSectionResource/Pages/EditCourseSection.php -> app/Filament/Resources/CourseSectionResource.php
+- app/Filament/Resources/CourseSectionResource/Pages/ListCourseSections.php -> app/Filament/Resources/CourseSectionResource.php
+- app/Filament/Resources/MediaResource.php -> app/Filament/Resources/MediaResource/Pages.php, app/Models/Media.php
+- app/Filament/Resources/MediaResource/Pages/CreateMedia.php -> app/Filament/Resources/MediaResource.php
+- app/Filament/Resources/MediaResource/Pages/EditMedia.php -> app/Filament/Resources/MediaResource.php
+- app/Filament/Resources/MediaResource/Pages/ListMedia.php -> app/Filament/Resources/MediaResource.php
+- app/Filament/Resources/PageResource.php -> app/Filament/Resources/PageResource/Pages.php, app/Models/Page.php
+- app/Filament/Resources/PageResource/Pages/CreatePage.php -> app/Filament/Resources/PageResource.php
+- app/Filament/Resources/PageResource/Pages/EditPage.php -> app/Filament/Resources/PageResource.php
+- app/Filament/Resources/PageResource/Pages/ListPages.php -> app/Filament/Resources/PageResource.php
+- app/Filament/Resources/QuestionResource.php -> app/Models/Question.php
+
+### Controllers
+- app/Http/Controllers/Account/AccountStatusController.php
+- app/Http/Controllers/Account/DashboardController.php
+- app/Http/Controllers/Account/NotificationCenterController.php
+- app/Http/Controllers/Account/PreferencesController.php
+- app/Http/Controllers/Account/ProfileController.php
+- app/Http/Controllers/Account/SecurityController.php
+- app/Http/Controllers/Auth/EmailVerificationNotificationController.php
+- app/Http/Controllers/Auth/EmailVerificationPromptController.php
+- app/Http/Controllers/Auth/NewPasswordController.php
+- app/Http/Controllers/Auth/PasswordResetLinkController.php
+- app/Http/Controllers/Auth/RegisteredUserController.php
+- app/Http/Controllers/Auth/SessionController.php
+- app/Http/Controllers/Auth/VerifyEmailController.php
+- app/Http/Controllers/Cms/BlogController.php
+- app/Http/Controllers/Cms/PageController.php
+- app/Http/Controllers/Commerce/CheckoutController.php
+
+### Models / entities
+- app/Models/Admin.php
+- app/Models/Announcement.php
+- app/Models/Assignment.php
+- app/Models/AssignmentSubmission.php
+- app/Models/Banner.php
+- app/Models/BlogCategory.php
+- app/Models/BlogComment.php
+- app/Models/BlogPost.php
+- app/Models/BlogTag.php
+- app/Models/Branch.php
+- app/Models/Certificate.php
+- app/Models/CertificateTemplate.php
+- app/Models/Coupon.php
+- app/Models/Course.php
+- app/Models/CourseLesson.php
+- app/Models/CourseProgress.php
+
+### Middleware
+- app/Http/Middleware/EnsureUserAccountIsAccessible.php
+- app/Http/Middleware/TrackLastActivity.php
+
+### Laravel routes
+- routes/web.php
+- routes/console.php
+
+### Laravel requests / validation
+- app/Http/Requests/Account/UpdatePreferencesRequest.php
+- app/Http/Requests/Account/UpdateProfileRequest.php
+- app/Http/Requests/Account/UpdateSecurityPasswordRequest.php
+- app/Http/Requests/RegisterRequest.php
+
+### Laravel API/Filament resources
+- app/Filament/Pages/AdminProfile.php
+- app/Filament/Pages/AnalyticsDashboard.php
+- app/Filament/Pages/Auth/AdminLogin.php
+- app/Filament/Resources/AssignmentResource.php
+- app/Filament/Resources/AssignmentResource/Pages/CreateAssignment.php
+- app/Filament/Resources/AssignmentResource/Pages/EditAssignment.php
+- app/Filament/Resources/AssignmentResource/Pages/ListAssignments.php
+- app/Filament/Resources/BlogPostResource.php
+- app/Filament/Resources/BlogPostResource/Pages/CreateBlogPost.php
+- app/Filament/Resources/BlogPostResource/Pages/EditBlogPost.php
+- app/Filament/Resources/BlogPostResource/Pages/ListBlogPosts.php
+- app/Filament/Resources/CertificateTemplateResource.php
+
+### Available validation scripts
+- build: vite build
+- dev: vite
+
+### Composer scripts
+- setup
+- dev
+- test
+- post-autoload-dump
+- post-update-cmd
+- post-root-package-install
+- post-create-project-cmd
+- pre-package-uninstall
+
+## Recently edited files
+- None recorded yet
+
+## High-value project files
+- composer.json
+- package.json
+- README.md
+- vite.config.js
+- app/Console/Commands/CreateAdmin.php
+- app/Console/Commands/ExpireSubscriptions.php
+- app/Enums/AdminRole.php
+- app/Enums/AdminStatus.php
+- app/Enums/AssignmentStatus.php
+- app/Enums/AttemptStatus.php
+- app/Enums/CouponType.php
+- app/Enums/CourseProgressStatus.php
+- app/Enums/CourseStatus.php
+- app/Enums/EnrollmentStatus.php
+- app/Enums/EntitlementStatus.php
+- app/Enums/InvoiceStatus.php
+- app/Enums/LessonProgressStatus.php
+- app/Enums/LessonType.php
+- app/Enums/LiveSessionStatus.php
+- app/Enums/MediaType.php
+- app/Enums/NotificationChannel.php
+- app/Enums/NotificationStatus.php
+- app/Enums/OrderStatus.php
+- app/Enums/PageStatus.php
+- app/Enums/PaymentMethod.php
+- app/Enums/PaymentStatus.php
+- app/Enums/PlanBillingType.php
+- app/Enums/PlanCourseAccessType.php
+- app/Enums/PlanStatus.php
+- app/Enums/PurchaseMode.php
+- app/Enums/QuestionDifficulty.php
+- app/Enums/QuestionStatus.php
+- app/Enums/QuestionType.php
+- app/Enums/QuizStatus.php
+- app/Enums/RefundStatus.php
+- app/Enums/ReportFormat.php
+- app/Enums/ReportFrequency.php
+- app/Enums/SessionProvider.php
+- app/Enums/SessionType.php
+- app/Enums/SubmissionStatus.php
+- app/Enums/SubscriptionStatus.php
+- app/Enums/TenantStatus.php
+- app/Enums/UserStatus.php
+- app/Filament/Pages/AdminProfile.php
+- app/Filament/Pages/AnalyticsDashboard.php
+- app/Filament/Pages/Auth/AdminLogin.php
+- app/Filament/Resources/AssignmentResource.php
+- app/Filament/Resources/AssignmentResource/Pages/CreateAssignment.php
+- app/Filament/Resources/AssignmentResource/Pages/EditAssignment.php
+- app/Filament/Resources/AssignmentResource/Pages/ListAssignments.php
+- app/Filament/Resources/BlogPostResource.php
+- app/Filament/Resources/BlogPostResource/Pages/CreateBlogPost.php
+- app/Filament/Resources/BlogPostResource/Pages/EditBlogPost.php
+- app/Filament/Resources/BlogPostResource/Pages/ListBlogPosts.php
+- app/Filament/Resources/CertificateTemplateResource.php
+- app/Filament/Resources/CertificateTemplateResource/Pages/CreateCertificateTemplate.php
+- app/Filament/Resources/CertificateTemplateResource/Pages/EditCertificateTemplate.php
+- app/Filament/Resources/CertificateTemplateResource/Pages/ListCertificateTemplates.php
+- app/Filament/Resources/CourseResource.php
+- app/Filament/Resources/CourseResource/Pages/CreateCourse.php
+- app/Filament/Resources/CourseResource/Pages/EditCourse.php
+- app/Filament/Resources/CourseResource/Pages/ListCourses.php
+- app/Filament/Resources/CourseResource/RelationManagers/SectionsRelationManager.php
+- app/Filament/Resources/CourseSectionResource.php
+- app/Filament/Resources/CourseSectionResource/Pages/EditCourseSection.php
+- app/Filament/Resources/CourseSectionResource/Pages/ListCourseSections.php
+- app/Filament/Resources/CourseSectionResource/RelationManagers/LessonsRelationManager.php
+- app/Filament/Resources/MediaResource.php
+- app/Filament/Resources/MediaResource/Pages/CreateMedia.php
+- app/Filament/Resources/MediaResource/Pages/EditMedia.php
+- app/Filament/Resources/MediaResource/Pages/ListMedia.php
+- app/Filament/Resources/PageResource.php
+- app/Filament/Resources/PageResource/Pages/CreatePage.php
+- app/Filament/Resources/PageResource/Pages/EditPage.php
+- app/Filament/Resources/PageResource/Pages/ListPages.php
+- app/Filament/Resources/QuestionResource.php
+- app/Filament/Resources/QuestionResource/Pages/CreateQuestion.php
+- app/Filament/Resources/QuestionResource/Pages/EditQuestion.php
+- app/Filament/Resources/QuestionResource/Pages/ListQuestions.php
+- app/Filament/Resources/QuizResource.php
+
+## Additional indexed files
+- app/Filament/Resources/QuizResource/Pages/CreateQuiz.php
+- app/Filament/Resources/QuizResource/Pages/EditQuiz.php
+- app/Filament/Resources/QuizResource/Pages/ListQuizzes.php
+- app/Filament/Resources/SubscriptionPlanResource.php
+- app/Filament/Resources/SubscriptionPlanResource/Pages/CreateSubscriptionPlan.php
+- app/Filament/Resources/SubscriptionPlanResource/Pages/EditSubscriptionPlan.php
+- app/Filament/Resources/SubscriptionPlanResource/Pages/ListSubscriptionPlans.php
+- app/Filament/Resources/TenantResource.php
+- app/Filament/Resources/TenantResource/RelationManagers/BranchesRelationManager.php
+- app/Filament/Resources/TenantResource/RelationManagers/DomainsRelationManager.php
+- app/Filament/Resources/TenantResource/RelationManagers/FeaturesRelationManager.php
+- app/Filament/Resources/TenantResource/RelationManagers/SubscriptionsRelationManager.php
+- app/Filament/Widgets/AdminStatsWidget.php
+- app/Filament/Widgets/CustomerStatsWidget.php
+- app/Filament/Widgets/RecentCustomersWidget.php
+- app/Http/Controllers/Account/AccountStatusController.php
+- app/Http/Controllers/Account/DashboardController.php
+- app/Http/Controllers/Account/NotificationCenterController.php
+- app/Http/Controllers/Account/PreferencesController.php
+- app/Http/Controllers/Account/ProfileController.php
+- app/Http/Controllers/Account/SecurityController.php
+- app/Http/Controllers/Auth/EmailVerificationNotificationController.php
+- app/Http/Controllers/Auth/EmailVerificationPromptController.php
+- app/Http/Controllers/Auth/NewPasswordController.php
+- app/Http/Controllers/Auth/PasswordResetLinkController.php
+- app/Http/Controllers/Auth/RegisteredUserController.php
+- app/Http/Controllers/Auth/SessionController.php
+- app/Http/Controllers/Auth/VerifyEmailController.php
+- app/Http/Controllers/Cms/BlogController.php
+- app/Http/Controllers/Cms/PageController.php
+- app/Http/Controllers/Commerce/CheckoutController.php
+- app/Http/Controllers/Controller.php
+- app/Http/Controllers/Learn/AssignmentController.php
+- app/Http/Controllers/Learn/CertificateController.php
+- app/Http/Controllers/Learn/CourseLearningController.php
+- app/Http/Controllers/Learn/LearningDashboardController.php
+- app/Http/Controllers/Learn/LessonPlayerController.php
+- app/Http/Controllers/Learn/LessonProgressController.php
+- app/Http/Controllers/Learn/LiveSessionController.php
+- app/Http/Controllers/Learn/PublicPreviewController.php
+- app/Http/Controllers/Learn/QuizController.php
+- app/Http/Middleware/EnsureUserAccountIsAccessible.php
+- app/Http/Middleware/TrackLastActivity.php
+- app/Http/Requests/Account/UpdatePreferencesRequest.php
+- app/Http/Requests/Account/UpdateProfileRequest.php
+- app/Http/Requests/Account/UpdateSecurityPasswordRequest.php
+- app/Http/Requests/RegisterRequest.php
+- app/Jobs/Concerns/ProductionJob.php
+- app/Jobs/SendNotificationJob.php
+- app/Listeners/Communication/CommunicationEventSubscriber.php
+- app/Listeners/UpdateAdminLastLoginActivity.php
+- app/Listeners/UpdateLastLoginActivity.php
+- app/Models/Admin.php
+- app/Models/Announcement.php
+- app/Models/Assignment.php
+- app/Models/AssignmentSubmission.php
+- app/Models/Banner.php
+- app/Models/BlogCategory.php
+- app/Models/BlogComment.php
+- app/Models/BlogPost.php
+- app/Models/BlogTag.php
+- app/Models/Branch.php
+- app/Models/Certificate.php
+- app/Models/CertificateTemplate.php
+- app/Models/Coupon.php
+- app/Models/Course.php
+- app/Models/CourseLesson.php
+- app/Models/CourseProgress.php
+- app/Models/CourseSection.php
+- app/Models/Department.php
+- app/Models/Enrollment.php
+- app/Models/Entitlement.php
+- app/Models/FaqCategory.php
+- app/Models/FaqItem.php
+- app/Models/Invoice.php
+- app/Models/LessonProgress.php
+- app/Models/LiveSession.php
+- app/Models/Media.php
+- app/Models/MediaFolder.php
+- app/Models/Menu.php
+- app/Models/MenuItem.php
+- app/Models/Notification.php
+- app/Models/NotificationTemplate.php
+- app/Models/Order.php
+- app/Models/OrderItem.php
+- app/Models/Page.php
+- app/Models/Payment.php
+- app/Models/Question.php
+- app/Models/QuestionCategory.php
+- app/Models/QuestionOption.php
+- app/Models/Quiz.php
+- app/Models/QuizAnswer.php
+- app/Models/QuizAttempt.php
+- app/Models/Refund.php
+- app/Models/ReportExport.php
+- app/Models/ScheduledReport.php
+- app/Models/SessionAttendance.php
+- app/Models/Setting.php
+- app/Models/SubscriptionPlan.php
+- app/Models/Tenant.php

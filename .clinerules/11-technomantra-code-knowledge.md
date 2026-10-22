@@ -1,0 +1,106 @@
+# Technomantra Local Code Knowledge Graph (V4.8.14)
+
+> Structural local index. Read current source before editing. Secrets are intentionally excluded.
+
+- Indexed source files: 177
+- Structural edges: 117
+- Matched end-to-end flows: 0
+- Updated: 2026-08-26T09:40:51.805Z
+
+## Dependency edges
+- IMPORT app/Console/Commands/CreateAdmin.php -> app/Models/Admin.php, app/Enums/AdminRole.php, app/Enums/AdminStatus.php
+- IMPORT app/Console/Commands/ExpireSubscriptions.php -> app/Enums/EntitlementStatus.php, app/Enums/EnrollmentStatus.php, app/Enums/SubscriptionStatus.php
+- IMPORT app/Filament/Pages/AdminProfile.php -> app/Enums/AdminStatus.php
+- IMPORT app/Filament/Pages/AnalyticsDashboard.php -> app/Enums/ReportFormat.php
+- IMPORT app/Filament/Pages/Auth/AdminLogin.php -> app/Enums/AdminStatus.php
+- IMPORT app/Filament/Resources/AssignmentResource.php -> app/Enums/AssignmentStatus.php, app/Models/Assignment.php, app/Models/CourseLesson.php
+- IMPORT app/Filament/Resources/AssignmentResource/Pages/CreateAssignment.php -> app/Filament/Resources/AssignmentResource.php
+- IMPORT app/Filament/Resources/AssignmentResource/Pages/EditAssignment.php -> app/Filament/Resources/AssignmentResource.php
+- IMPORT app/Filament/Resources/AssignmentResource/Pages/ListAssignments.php -> app/Filament/Resources/AssignmentResource.php
+- IMPORT app/Filament/Resources/BlogPostResource.php -> app/Enums/PageStatus.php, app/Models/BlogCategory.php, app/Models/BlogPost.php
+- IMPORT app/Filament/Resources/BlogPostResource/Pages/CreateBlogPost.php -> app/Filament/Resources/BlogPostResource.php
+- IMPORT app/Filament/Resources/BlogPostResource/Pages/EditBlogPost.php -> app/Filament/Resources/BlogPostResource.php
+- IMPORT app/Filament/Resources/BlogPostResource/Pages/ListBlogPosts.php -> app/Filament/Resources/BlogPostResource.php
+- IMPORT app/Filament/Resources/CertificateTemplateResource.php -> app/Models/CertificateTemplate.php
+- IMPORT app/Filament/Resources/CertificateTemplateResource/Pages/CreateCertificateTemplate.php -> app/Filament/Resources/CertificateTemplateResource.php
+- IMPORT app/Filament/Resources/CertificateTemplateResource/Pages/EditCertificateTemplate.php -> app/Filament/Resources/CertificateTemplateResource.php
+- IMPORT app/Filament/Resources/CertificateTemplateResource/Pages/ListCertificateTemplates.php -> app/Filament/Resources/CertificateTemplateResource.php
+- IMPORT app/Filament/Resources/CourseResource.php -> app/Enums/CourseStatus.php, app/Models/Course.php
+- IMPORT app/Filament/Resources/CourseResource/Pages/CreateCourse.php -> app/Filament/Resources/CourseResource.php
+- IMPORT app/Filament/Resources/CourseResource/Pages/EditCourse.php -> app/Filament/Resources/CourseResource.php
+- IMPORT app/Filament/Resources/CourseResource/Pages/ListCourses.php -> app/Filament/Resources/CourseResource.php
+- IMPORT app/Filament/Resources/CourseResource/RelationManagers/SectionsRelationManager.php -> app/Filament/Resources/CourseSectionResource.php
+- IMPORT app/Filament/Resources/CourseSectionResource.php -> app/Models/CourseSection.php
+- IMPORT app/Filament/Resources/CourseSectionResource/Pages/EditCourseSection.php -> app/Filament/Resources/CourseSectionResource.php
+- IMPORT app/Filament/Resources/CourseSectionResource/Pages/ListCourseSections.php -> app/Filament/Resources/CourseSectionResource.php
+- IMPORT app/Filament/Resources/CourseSectionResource/RelationManagers/LessonsRelationManager.php -> app/Enums/LessonType.php
+- IMPORT app/Filament/Resources/MediaResource.php -> app/Enums/MediaType.php, app/Models/Media.php
+- IMPORT app/Filament/Resources/MediaResource/Pages/CreateMedia.php -> app/Filament/Resources/MediaResource.php
+- IMPORT app/Filament/Resources/MediaResource/Pages/EditMedia.php -> app/Filament/Resources/MediaResource.php
+- IMPORT app/Filament/Resources/MediaResource/Pages/ListMedia.php -> app/Filament/Resources/MediaResource.php
+- IMPORT app/Filament/Resources/PageResource.php -> app/Enums/PageStatus.php, app/Models/Page.php
+- IMPORT app/Filament/Resources/PageResource/Pages/CreatePage.php -> app/Filament/Resources/PageResource.php
+- IMPORT app/Filament/Resources/PageResource/Pages/EditPage.php -> app/Filament/Resources/PageResource.php
+- IMPORT app/Filament/Resources/PageResource/Pages/ListPages.php -> app/Filament/Resources/PageResource.php
+- IMPORT app/Filament/Resources/QuestionResource.php -> app/Enums/QuestionDifficulty.php, app/Enums/QuestionStatus.php, app/Enums/QuestionType.php, app/Models/Question.php
+- IMPORT app/Filament/Resources/QuestionResource/Pages/CreateQuestion.php -> app/Filament/Resources/QuestionResource.php
+- IMPORT app/Filament/Resources/QuestionResource/Pages/EditQuestion.php -> app/Filament/Resources/QuestionResource.php
+- IMPORT app/Filament/Resources/QuestionResource/Pages/ListQuestions.php -> app/Filament/Resources/QuestionResource.php
+- IMPORT app/Filament/Resources/QuizResource.php -> app/Enums/QuizStatus.php, app/Models/Course.php, app/Models/CourseLesson.php, app/Models/Quiz.php
+- IMPORT app/Filament/Resources/QuizResource/Pages/CreateQuiz.php -> app/Filament/Resources/QuizResource.php
+- IMPORT app/Filament/Resources/QuizResource/Pages/EditQuiz.php -> app/Filament/Resources/QuizResource.php
+- IMPORT app/Filament/Resources/QuizResource/Pages/ListQuizzes.php -> app/Filament/Resources/QuizResource.php
+
+## Database references
+- DB vite.config.js -> vite, laravel
+- DB app/Models/Announcement.php -> announcements
+- DB app/Models/Banner.php -> banners
+- DB app/Models/BlogCategory.php -> blog_categories
+- DB app/Models/BlogComment.php -> blog_comments
+- DB app/Models/BlogPost.php -> blog_posts
+- DB app/Models/BlogTag.php -> blog_tags
+- DB app/Models/FaqCategory.php -> faq_categories
+- DB app/Models/FaqItem.php -> faq_items
+- DB app/Models/Media.php -> media
+- DB app/Models/MediaFolder.php -> media_folders
+- DB app/Models/Menu.php -> menus
+- DB app/Models/MenuItem.php -> menu_items
+- DB app/Models/Page.php -> pages
+
+## Symbols
+- SYMBOL app/Console/Commands/CreateAdmin.php: CreateAdmin, handle
+- SYMBOL app/Console/Commands/ExpireSubscriptions.php: ExpireSubscriptions, handle
+- SYMBOL app/Enums/AdminRole.php: label, permissions, allPermissions, slugs
+- SYMBOL app/Enums/AdminStatus.php: default, canAuthenticate, canAccessPanel, label
+- SYMBOL app/Enums/AssignmentStatus.php: label, isPubliclyVisible, values
+- SYMBOL app/Enums/AttemptStatus.php: label, isFinished, values
+- SYMBOL app/Enums/CouponType.php: label
+- SYMBOL app/Enums/CourseProgressStatus.php: label, values
+- SYMBOL app/Enums/CourseStatus.php: values, label, getLabel, isPubliclyVisible
+- SYMBOL app/Enums/EnrollmentStatus.php: grantsAccess, label, getLabel, values
+- SYMBOL app/Enums/EntitlementStatus.php: grantsAccess, label, getLabel, values
+- SYMBOL app/Enums/InvoiceStatus.php: label, color
+- SYMBOL app/Enums/LessonProgressStatus.php: label, values
+- SYMBOL app/Enums/LessonType.php: values, label, getLabel
+- SYMBOL app/Enums/LiveSessionStatus.php: label, isPubliclyVisible, values
+- SYMBOL app/Enums/MediaType.php: values, label, getLabel
+- SYMBOL app/Enums/NotificationChannel.php: values, label, getLabel
+- SYMBOL app/Enums/NotificationStatus.php: values, label, getLabel
+- SYMBOL app/Enums/OrderStatus.php: label, color, isPaid, isTerminal, allowedTransitions, canTransitionTo
+- SYMBOL app/Enums/PageStatus.php: values, label, getLabel, isPubliclyVisible
+- SYMBOL app/Enums/PaymentMethod.php: label
+- SYMBOL app/Enums/PaymentStatus.php: label, color, isSuccessful
+- SYMBOL app/Enums/PlanBillingType.php: durationDays, expires, label, getLabel, values
+- SYMBOL app/Enums/PlanCourseAccessType.php: label, getLabel, values
+- SYMBOL app/Enums/PlanStatus.php: isPurchasable, label, getLabel, values
+- SYMBOL app/Enums/PurchaseMode.php: label, isPlanGrantable
+- SYMBOL app/Enums/QuestionDifficulty.php: label, values
+- SYMBOL app/Enums/QuestionStatus.php: label, values
+- SYMBOL app/Enums/QuestionType.php: label, isAutoGradable, values
+- SYMBOL app/Enums/QuizStatus.php: label, isPubliclyVisible, values
+- SYMBOL app/Enums/RefundStatus.php: label, color
+- SYMBOL app/Enums/ReportFormat.php: label, values
+- SYMBOL app/Enums/ReportFrequency.php: label, interval, values
+- SYMBOL app/Enums/SessionProvider.php: label, values
+- SYMBOL app/Enums/SessionType.php: label, values
+- SYMBOL app/Enums/SubmissionStatus.php: label, isGraded, values
