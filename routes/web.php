@@ -57,8 +57,33 @@ Route::get('/', static function () {
 Route::view('/terms', 'legal.terms')->name('legal.terms');
 Route::view('/privacy', 'legal.privacy')->name('legal.privacy');
 
-Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
-Route::get('/plans', [PlanController::class, 'index'])->middleware('auth')->name('plans.index');
+Route::get('/courses', static function () {
+    if (file_exists(public_path('index.html'))) {
+        return response()->file(public_path('index.html'));
+    }
+    return redirect('/admin');
+})->name('courses.index');
+
+Route::get('/plans', static function () {
+    if (file_exists(public_path('index.html'))) {
+        return response()->file(public_path('index.html'));
+    }
+    return redirect('/admin');
+})->name('plans.index');
+
+Route::get('/membership', static function () {
+    if (file_exists(public_path('index.html'))) {
+        return response()->file(public_path('index.html'));
+    }
+    return redirect('/admin');
+})->name('membership.index');
+
+Route::get('/pricing', static function () {
+    if (file_exists(public_path('index.html'))) {
+        return response()->file(public_path('index.html'));
+    }
+    return redirect('/admin');
+})->name('pricing.index');
 
 /*
 |--------------------------------------------------------------------------
