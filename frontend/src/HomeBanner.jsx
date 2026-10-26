@@ -84,7 +84,8 @@ export default function HomeBanner({ data }) {
     };
   }, []);
 
-  const activeCurrencyData = MEMBERSHIP_PRICING[membershipCurrency] || MEMBERSHIP_PRICING.inr;
+  const currKey = String(membershipCurrency || 'inr').toLowerCase();
+  const activeCurrencyData = MEMBERSHIP_PRICING[currKey] || MEMBERSHIP_PRICING.inr;
 
   // Scroll Reveal Animations
   useEffect(() => {
@@ -547,7 +548,7 @@ export default function HomeBanner({ data }) {
 
           {/* 4-Tier Membership Grid */}
           <div className="home-membership-grid">
-            {activeCurrencyData.plans.map((p, index) => {
+            {(activeCurrencyData?.plans || []).map((p, index) => {
               const isSadhana = p.id === 'sadhana';
               return (
                 <div

@@ -193,7 +193,8 @@ export default function MembershipPage() {
       });
   }, []);
 
-  const currentCurrencyData = pricingData[currency] || pricingData.inr;
+  const currKey = String(currency || 'inr').toLowerCase();
+  const currentCurrencyData = pricingData[currKey] || pricingData.inr || MEMBERSHIP_PRICING[currKey] || MEMBERSHIP_PRICING.inr;
   const sadhanaPlan = currentCurrencyData?.plans?.find((p) => p.id === 'sadhana') || currentCurrencyData?.plans?.[3] || currentCurrencyData?.plans?.[0] || {};
 
   const handleOpenCheckout = (plan, curr = currentCurrencyData) => {
@@ -354,8 +355,8 @@ export default function MembershipPage() {
         <div className="section-shell">
           {/* Interactive 4-Column Cards View */}
           <div className="pricing-matrix-container">
-              {currentCurrencyData.plans.map((plan) => {
-                const isSadhana = plan.id === 'sadhana';
+            {(currentCurrencyData?.plans || []).map((plan) => {
+              const isSadhana = plan.id === 'sadhana';
                 const userPlanSlug = currentUser?.membership?.plan_slug?.toLowerCase();
                 const isMatchingPlan = Boolean(
                   userPlanSlug &&
@@ -427,7 +428,7 @@ export default function MembershipPage() {
 
                     {/* Features List */}
                     <ul className="matrix-features-list">
-                      {plan.features.map((feat) => (
+                      {(plan.features || []).map((feat) => (
                         <li key={feat}>
                           <span className="feat-check">✓</span>
                           <span>{feat}</span>

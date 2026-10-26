@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useMemo, useState } from 'react';
+import { Component, StrictMode, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 import HomeBanner from './HomeBanner';
@@ -785,6 +785,38 @@ function DataState({ error, onRetry }) {
   return <main className="inner-page"><section className="section-shell page-hero"><span className="eyebrow">FourSouls / connection</span><h1>{error ? 'The studio is taking a breath.' : 'Loading the studio.'}</h1><p className="page-lede">{error || 'Loading the latest courses, plans, and journal entries from Laravel.'}</p>{error && <button className="button button-primary" type="button" onClick={onRetry}>Try again <Arrow /></button>}</section></main>;
 }
 
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('ErrorBoundary caught:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '60px 20px', textAlign: 'center', fontFamily: 'sans-serif' }}>
+          <h2>Something took an unexpected turn.</h2>
+          <p style={{ color: '#666', maxWidth: 500, margin: '10px auto' }}>
+            {this.state.error?.message || 'Please refresh to continue.'}
+          </p>
+          <button
+            style={{ padding: '10px 24px', borderRadius: 20, border: 'none', background: '#112836', color: '#fff', cursor: 'pointer', marginTop: 12, fontWeight: 600 }}
+            onClick={() => { this.setState({ hasError: false }); window.location.reload(); }}
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   const path = usePath();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -831,10 +863,11 @@ function App() {
     return <PageIntro eyebrow="404 / lost signal" title={<>This page took a <em>different orbit.</em></>} copy="Let's get you back to something useful."><Button href="/">Return home</Button></PageIntro>;
   }, [data, cleanPath, slug]);
   if (!data && loadError) return <><Noise /><DataState error={loadError} onRetry={() => { setData(FALLBACK_DATA); }} /><Footer /></>;
-  return <><Noise /><Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} overlay={path === '/'} />{page}<Footer /></>;
+  return <><Noise /><Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} overlay={path === '/'} /><ErrorBoundary>{page}</ErrorBoundary><Footer /></>;
 }
 
 const rootElement = document.getElementById('root');
 const root = globalThis.__FOURSOULS_REACT_ROOT__ || createRoot(rootElement);
 globalThis.__FOURSOULS_REACT_ROOT__ = root;
-root.render(<StrictMode><App /></StrictMode>);
+root.render(<StrictMode><ErrorBoundary><App /></ErrorBoundary></StrictMode>);
+
