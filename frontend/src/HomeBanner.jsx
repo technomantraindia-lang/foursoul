@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MEMBERSHIP_PRICING } from './membershipData';
 import { CURATED_ARTICLES, resolveBlogImageUrl } from './JournalPage';
+import CountryPricingBar from './CountryPricingBar';
+import { getInitialCurrency } from './countryPricingService';
 
 import heroBannerBg from './images/image copy.png';
 import whyFoursoulsBannerBg from './images/image copy 2.png';
@@ -38,7 +40,7 @@ export function AppLink({ href, children, className = '', onClick, target, rel }
 let cachedHomeBlogs = null;
 
 export default function HomeBanner({ data }) {
-  const [membershipCurrency, setMembershipCurrency] = useState('inr'); // 'inr' | 'aed' | 'usd'
+  const [membershipCurrency, setMembershipCurrency] = useState(getInitialCurrency); // 'inr' | 'aed' | 'usd'
   const [openFaq, setOpenFaq] = useState(0);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0);
@@ -535,34 +537,13 @@ export default function HomeBanner({ data }) {
               Live classes, every day · India, UAE and worldwide · The longer you commit, the more you save
             </p>
 
-            {/* Currency Switcher Tabs */}
-            <div className="membership-currency-switch-wrap">
-              <div className="currency-switch-box">
-                <button
-                  type="button"
-                  className={`currency-pill ${membershipCurrency === 'inr' ? 'active' : ''}`}
-                  onClick={() => setMembershipCurrency('inr')}
-                >
-                  ₹ INR Pricing
-                </button>
-                <button
-                  type="button"
-                  className={`currency-pill ${membershipCurrency === 'aed' ? 'active' : ''}`}
-                  onClick={() => setMembershipCurrency('aed')}
-                >
-                  AED Pricing
-                </button>
-                <button
-                  type="button"
-                  className={`currency-pill ${membershipCurrency === 'usd' ? 'active' : ''}`}
-                  onClick={() => setMembershipCurrency('usd')}
-                >
-                  $ USD Pricing
-                </button>
-              </div>
-              <span className="currency-geo-note">{activeCurrencyData.subtitle}</span>
-            </div>
+            {/* Country-Wise Pricing Controls */}
+            <CountryPricingBar
+              currency={membershipCurrency}
+              onCurrencyChange={setMembershipCurrency}
+            />
           </div>
+
 
           {/* 4-Tier Membership Grid */}
           <div className="home-membership-grid">

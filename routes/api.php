@@ -27,6 +27,35 @@ Route::middleware('web')->prefix('auth')->group(function (): void {
 
 Route::middleware('web')->post('/subscriptions/purchase', [\App\Http\Controllers\Api\AuthController::class, 'purchaseSubscription']);
 
+Route::get('/geo/country', static function (Request $request, \App\Services\GeoLocationService $geo) {
+    $country = $geo->resolve($request);
+
+    if ($country === null && $request->hasHeader('CF-IPCountry')) {
+        $cf = strtoupper(trim((string) $request->header('CF-IPCountry')));
+        if ($cf !== '' && $cf !== 'XX') {
+            $country = $cf;
+        }
+    }
+
+    if ($country === null && $request->hasHeader('X-Country-Code')) {
+        $x = strtoupper(trim((string) $request->header('X-Country-Code')));
+        if (strlen($x) === 2) {
+            $country = $x;
+        }
+    }
+
+    $currency = \App\Services\PricingCurrencyResolver::currencyForCountry($country);
+
+    return response()->json([
+        'country_code' => $country,
+        'currency' => strtolower($currency->value),
+        'currency_code' => $currency->value,
+        'symbol' => $currency->symbol(),
+        'label' => $currency->label(),
+    ]);
+});
+
+
 Route::get('/home', static function () {
     return response()->json([
         'stats' => [

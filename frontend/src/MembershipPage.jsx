@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MEMBERSHIP_PRICING } from './membershipData';
+import CountryPricingBar from './CountryPricingBar';
+import { getInitialCurrency } from './countryPricingService';
 
 // Schedule timetable per timezone
 const liveSchedules = {
@@ -72,8 +74,7 @@ const membershipFaqs = [
 ];
 
 export default function MembershipPage() {
-  const [currency, setCurrency] = useState('inr'); // 'inr' | 'aed' | 'usd'
-  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'all-tables'
+  const [currency, setCurrency] = useState(getInitialCurrency); // 'inr' | 'aed' | 'usd'
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
@@ -265,46 +266,13 @@ export default function MembershipPage() {
             Live classes, every day · India, UAE and worldwide · The longer you commit, the more you save
           </p>
 
-          {/* View Mode & Currency Switcher Bar */}
-          <div className="membership-control-bar">
-            {/* Currency Tabs */}
-            <div className="currency-switch-box">
-              <button
-                type="button"
-                className={`currency-pill ${currency === 'inr' && viewMode === 'cards' ? 'active' : ''}`}
-                onClick={() => { setCurrency('inr'); setViewMode('cards'); }}
-              >
-                ₹ INR Pricing
-              </button>
-              <button
-                type="button"
-                className={`currency-pill ${currency === 'aed' && viewMode === 'cards' ? 'active' : ''}`}
-                onClick={() => { setCurrency('aed'); setViewMode('cards'); }}
-              >
-                AED Pricing
-              </button>
-              <button
-                type="button"
-                className={`currency-pill ${currency === 'usd' && viewMode === 'cards' ? 'active' : ''}`}
-                onClick={() => { setCurrency('usd'); setViewMode('cards'); }}
-              >
-                $ USD Pricing
-              </button>
-              <button
-                type="button"
-                className={`currency-pill pill-doc-view ${viewMode === 'all-tables' ? 'active' : ''}`}
-                onClick={() => setViewMode('all-tables')}
-                title="View All 3 Currencies Stacked"
-              >
-                📄 All Currencies Document
-              </button>
-            </div>
-
-            <div className="currency-geo-note">
-              {viewMode === 'all-tables' ? 'Displaying full official document view with all 3 global currencies' : currentCurrencyData.subtitle}
-            </div>
-          </div>
+          {/* Localized Country Pricing Indicator */}
+          <CountryPricingBar
+            currency={currency}
+            onCurrencyChange={setCurrency}
+          />
         </div>
+
       </section>
 
       {/* ACTIVE MEMBERSHIP STATUS BANNER */}
@@ -384,9 +352,8 @@ export default function MembershipPage() {
       {/* 2. THE OFFICIAL PRICING MATRIX */}
       <section className="membership-matrix-section" id="plans-grid">
         <div className="section-shell">
-          {viewMode === 'cards' ? (
-            /* Interactive 4-Column Cards View */
-            <div className="pricing-matrix-container">
+          {/* Interactive 4-Column Cards View */}
+          <div className="pricing-matrix-container">
               {currentCurrencyData.plans.map((plan) => {
                 const isSadhana = plan.id === 'sadhana';
                 const userPlanSlug = currentUser?.membership?.plan_slug?.toLowerCase();
@@ -502,70 +469,7 @@ export default function MembershipPage() {
                 );
               })}
             </div>
-          ) : (
-            /* Official Document View (All 3 Currency Tables Stacked) */
-            <div className="all-currencies-document-wrap">
-              {Object.keys(MEMBERSHIP_PRICING).map((currKey) => {
-                const cData = MEMBERSHIP_PRICING[currKey];
-                return (
-                  <div key={cData.code} className="doc-currency-table-block">
-                    <div className="doc-currency-title">
-                      <h3>{cData.name}</h3>
-                      <small>{cData.subtitle}</small>
-                    </div>
 
-                    <div className="pricing-matrix-container">
-                      {cData.plans.map((p) => {
-                        const isSadhana = p.id === 'sadhana';
-                        return (
-                          <div
-                            key={p.id}
-                            className={`matrix-tier-column ${isSadhana ? 'tier-sadhana' : ''}`}
-                          >
-                            <div className={`matrix-col-header ${isSadhana ? 'header-sadhana' : 'header-standard'}`}>
-                              <h4 className="tier-name">{p.name}</h4>
-                              <span className="tier-duration">{p.duration}</span>
-                              {p.savings && <div className="tier-badge-save">{p.savings}</div>}
-                            </div>
-
-                            <div className="matrix-strikethrough-slot">
-                              {p.strikethrough ? (
-                                <span className="strikethrough-price">{p.strikethrough}</span>
-                              ) : (
-                                <span className="strikethrough-placeholder">&nbsp;</span>
-                              )}
-                            </div>
-
-                            <div className="matrix-price-display">
-                              <div className="price-big-number">
-                                <span className="curr-sym">{cData.symbol}</span>
-                                <span className="num-val">{p.price}</span>
-                              </div>
-                              <div className="per-month-text">{p.perMonth}</div>
-                              <div className={`note-text ${p.savings ? 'highlight-save' : ''}`}>
-                                {p.note}
-                              </div>
-                            </div>
-
-                            <div className="matrix-action-slot">
-                              <button
-                                type="button"
-                                className={`btn-tier-select ${isSadhana ? 'btn-sadhana' : ''}`}
-                                onClick={() => handleOpenCheckout(p, cData)}
-                              >
-                                <span>Select {p.name}</span>
-                                <span className="arrow-slide">→</span>
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
 
           {/* Official Footnote from Image */}
           <div className="membership-official-footnote">
