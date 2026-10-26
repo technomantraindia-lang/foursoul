@@ -171,7 +171,7 @@ export default function MembershipPage() {
                   price: currKey === 'inr' ? p.price_inr : currKey === 'aed' ? p.price_aed : p.price_usd,
                   strikethrough: currKey === 'inr' ? p.strikethrough_inr : currKey === 'aed' ? p.strikethrough_aed : p.strikethrough_usd,
                   perMonth: currKey === 'inr' ? p.per_month_inr : currKey === 'aed' ? p.per_month_aed : p.per_month_usd,
-                  note: p.note,
+                  note: p.id === 'sadhana' || (p.note && p.note.includes('10,289')) ? null : (currKey !== 'inr' && p.note?.includes('Rs.') ? (next[currKey]?.plans?.find((sp) => sp.id === p.id)?.note ?? null) : p.note),
                   savings: p.savings,
                   highlight: Boolean(p.highlight),
                   pause_days: p.pause_days,
@@ -407,9 +407,11 @@ export default function MembershipPage() {
                         <span className="num-val">{plan.price}</span>
                       </div>
                       <div className="per-month-text">{plan.perMonth}</div>
-                      <div className={`note-text ${plan.savings ? 'highlight-save' : ''}`}>
-                        {plan.note}
-                      </div>
+                      {plan.note && plan.id !== 'sadhana' && !plan.note.includes('10,289') ? (
+                        <div className={`note-text ${plan.savings ? 'highlight-save' : ''}`}>
+                          {plan.note}
+                        </div>
+                      ) : null}
 
                       {isPlanActive && (
                         <div className="active-period-indicator">

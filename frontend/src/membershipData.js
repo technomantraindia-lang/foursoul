@@ -64,7 +64,7 @@ export const MEMBERSHIP_PRICING = {
         price: '6,499',
         strikethrough: 'Rs. 16,788',
         perMonth: 'just Rs. 542 / month',
-        note: 'SAVE Rs. 10,289 · 61% OFF',
+        note: null,
         savings: '61% OFF',
         highlight: true,
         features: [
@@ -142,7 +142,7 @@ export const MEMBERSHIP_PRICING = {
         price: '999',
         strikethrough: 'AED 1,788',
         perMonth: 'just AED 83 / month',
-        note: 'SAVE AED 789 · 44% OFF',
+        note: null,
         savings: '44% OFF',
         highlight: true,
         features: [
@@ -220,7 +220,7 @@ export const MEMBERSHIP_PRICING = {
         price: '349',
         strikethrough: '$948',
         perMonth: 'just $29 / month',
-        note: 'SAVE $599 · 63% OFF',
+        note: null,
         savings: '63% OFF',
         highlight: true,
         features: [

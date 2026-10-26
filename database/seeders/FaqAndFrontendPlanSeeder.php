@@ -164,7 +164,7 @@ class FaqAndFrontendPlanSeeder extends Seeder
                 'price_usd' => 349,
                 'is_featured' => true,
                 'sort_order' => 4,
-                'short_description' => 'SAVE Rs. 10,289 · 61% OFF · Most Popular',
+                'short_description' => null,
                 'metadata' => [
                     'duration' => 'YEARLY',
                     'strikethrough_inr' => 'Rs. 16,788',
@@ -174,7 +174,6 @@ class FaqAndFrontendPlanSeeder extends Seeder
                     'per_month_aed' => 'just AED 83 / month',
                     'per_month_usd' => 'just $29 / month',
                     'savings' => '61% OFF',
-                    'note' => 'SAVE Rs. 10,289 · 61% OFF',
                     'pause_days' => 45,
                     'features' => [
                         'Everything in 6-Month Transform',

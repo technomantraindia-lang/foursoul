@@ -580,9 +580,11 @@ export default function HomeBanner({ data }) {
                       <span className="num-val">{p.price}</span>
                     </div>
                     <div className="per-month-text">{p.perMonth}</div>
-                    <div className={`note-text ${p.savings ? 'highlight-save' : ''}`}>
-                      {p.note}
-                    </div>
+                    {p.note && p.id !== 'sadhana' && !p.note.includes('10,289') ? (
+                      <div className={`note-text ${p.savings ? 'highlight-save' : ''}`}>
+                        {p.note}
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* Plan Features */}
