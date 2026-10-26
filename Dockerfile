@@ -60,6 +60,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN php artisan filament:assets || true
 RUN php artisan livewire:publish --assets || true
 
+# Build Laravel Vite assets (Blade auth/account views)
+RUN npm install --include=dev && npx vite build || true
+
 # Build React frontend
 RUN npm --prefix frontend install && npm --prefix frontend run build
 
