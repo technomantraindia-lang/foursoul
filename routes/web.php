@@ -54,8 +54,8 @@ Route::get('/', static function () {
 
 // Legal documents — linked from the registration consent checkboxes
 // (public: reachable by guests and authenticated users alike).
-Route::view('/terms', 'legal.terms')->name('legal.terms');
-Route::view('/privacy', 'legal.privacy')->name('legal.privacy');
+Route::get('/terms', static fn (PageController $pages) => $pages->show('terms-and-conditions'))->name('legal.terms');
+Route::get('/privacy', static fn (PageController $pages) => $pages->show('privacy-policy'))->name('legal.privacy');
 
 Route::get('/courses', static function () {
     if (file_exists(public_path('index.html'))) {

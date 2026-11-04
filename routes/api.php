@@ -5,7 +5,10 @@ declare(strict_types=1);
 use App\Models\BlogPost;
 use App\Models\Faq;
 use App\Models\LiveSession;
+use App\Models\MembershipComparisonFeature;
+use App\Models\Page;
 use App\Models\SubscriptionPlan;
+use App\Filament\Resources\LiveSessionResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -66,6 +69,141 @@ Route::get('/home', static function () {
     ]);
 });
 
+// The membership page timetable is managed from Admin > Member Content.
+// Keep the response public because it is displayed on the membership sales page.
+Route::get('/membership-schedule', static function () {
+    $record = LiveSession::query()
+        ->where('status', 'scheduled')
+        ->whereJsonContains('metadata->member_content', true)
+        ->whereJsonContains('metadata->content_kind', 'timetable')
+        ->latest('updated_at')
+        ->first();
+
+    if (! $record) {
+        return response()->json(['message' => 'No published membership timetable exists.'], 404);
+    }
+
+    $metadata = $record->metadata ?? [];
+    $definitions = LiveSessionResource::timezoneDefinitions();
+    $timetable = data_get($metadata, 'timetable', []);
+    $sourceTimezone = strtoupper((string) ($timetable['source_timezone'] ?? 'IST'));
+    $sourceTimezone = array_key_exists($sourceTimezone, $definitions) ? $sourceTimezone : 'IST';
+
+    $formatTime = static function (string $value, int $offsetMinutes): string {
+        $value = preg_replace('/\s+\((?:Prev|Next|Night)\)\s*$/i', '', trim($value)) ?? trim($value);
+        $parsed = \DateTimeImmutable::createFromFormat('!g:i A', strtoupper($value));
+        if (! $parsed) {
+            return $value;
+        }
+
+        $minutes = ((int) $parsed->format('G') * 60) + (int) $parsed->format('i') + $offsetMinutes;
+        $dayOffset = (int) floor($minutes / 1440);
+        $minutes = (($minutes % 1440) + 1440) % 1440;
+        $displayTime = \DateTimeImmutable::createFromFormat('!H:i', sprintf('%02d:%02d', intdiv($minutes, 60), $minutes % 60));
+
+        if (! $displayTime) {
+            return $value;
+        }
+
+        $suffix = $dayOffset < 0 ? ' (Prev)' : ($dayOffset > 0 ? ' (Next)' : '');
+
+        return $displayTime->format('g:i A') . $suffix;
+    };
+
+    $convertTime = static function (string $value, int $offsetMinutes) use ($formatTime): string {
+        if (preg_match('/^\s*(.+?)\s+-\s+(.+?)\s*$/', $value, $matches)) {
+            return $formatTime($matches[1], $offsetMinutes) . ' - ' . $formatTime($matches[2], $offsetMinutes);
+        }
+
+        return $formatTime($value, $offsetMinutes);
+    };
+
+    $normaliseSession = static fn (array $session, ?string $time = null): array => [
+        'time' => $time ?? (string) ($session['time'] ?? ''),
+        'name' => (string) ($session['name'] ?? ''),
+        'teacher' => (string) ($session['teacher'] ?? ''),
+        'level' => (string) ($session['level'] ?? ''),
+    ];
+
+    // New timetables contain one source schedule. Generate all other timezone
+    // views from it so the administrator never has to enter the same class four times.
+    $sourceSessions = collect($timetable['sessions'] ?? [])
+        ->filter(fn (mixed $session): bool => is_array($session) && filled($session['name'] ?? null))
+        ->values();
+
+    // Preserve any existing per-timezone copy for the session text. This lets
+    // a source-time edit update only the clock while keeping each box's title,
+    // instructor, and level unchanged.
+    $timezoneContentOverrides = collect($timetable['timezones'] ?? [])
+        ->filter(fn (mixed $timezone): bool => is_array($timezone) && filled($timezone['code'] ?? null))
+        ->mapWithKeys(static function (array $timezone): array {
+            $code = strtoupper(trim((string) $timezone['code']));
+
+            return [$code => collect($timezone['sessions'] ?? [])
+                ->filter(fn (mixed $session): bool => is_array($session) && filled($session['name'] ?? null))
+                ->values()
+                ->all()];
+        })
+        ->all();
+
+    if ($sourceSessions->isNotEmpty()) {
+        $sourceOffset = $definitions[$sourceTimezone]['offset_minutes'];
+        $timezones = [];
+
+        foreach ($definitions as $code => $definition) {
+            $difference = $definition['offset_minutes'] - $sourceOffset;
+            $timezones[$code] = [
+                'code' => $code,
+                'label' => $code . ' Time',
+                'full_name' => $definition['full_name'],
+                'location' => $definition['location'],
+                'sessions' => $sourceSessions
+                    ->map(function (array $session, int $index) use ($code, $difference, $convertTime, $normaliseSession, $timezoneContentOverrides): array {
+                        $displaySession = $timezoneContentOverrides[$code][$index] ?? $session;
+
+                        return $normaliseSession(
+                            $displaySession,
+                            $convertTime((string) ($session['time'] ?? ''), $difference),
+                        );
+                    })
+                    ->all(),
+            ];
+        }
+    } else {
+        // Keep older records working after the form changes to one source timezone.
+        $timezones = collect(data_get($metadata, 'timetable.timezones', []))
+            ->filter(fn (mixed $timezone): bool => is_array($timezone) && filled($timezone['code'] ?? null))
+            ->mapWithKeys(function (array $timezone) use ($definitions, $normaliseSession): array {
+                $code = strtoupper(trim((string) $timezone['code']));
+                $definition = $definitions[$code] ?? [
+                    'full_name' => $code,
+                    'location' => '',
+                ];
+
+                return [$code => [
+                    'code' => $code,
+                    'label' => $timezone['label'] ?? ($code . ' Time'),
+                    'full_name' => $definition['full_name'],
+                    'location' => $definition['location'],
+                    'sessions' => collect($timezone['sessions'] ?? [])
+                        ->filter(fn (mixed $session): bool => is_array($session) && filled($session['name'] ?? null))
+                        ->map(fn (array $session): array => $normaliseSession($session))
+                        ->values()
+                        ->all(),
+                ]];
+            })
+            ->all();
+    }
+
+    return response()->json([
+        'eyebrow' => data_get($metadata, 'timetable.eyebrow', 'DAILY LIVE TIMETABLE'),
+        'title' => $record->title,
+        'description' => $record->description,
+        'timezones' => $timezones,
+        'updated_at' => $record->updated_at?->toIso8601String(),
+    ]);
+});
+
 Route::get('/faqs', static function () {
     return Faq::query()
         ->published()
@@ -123,6 +261,7 @@ Route::middleware('web')->get('/live-sessions', static function (Request $reques
     return LiveSession::query()
         ->where('status', 'scheduled')
         ->whereJsonContains('metadata->member_content', true)
+        ->where('video_type', '!=', 'member_timetable')
         ->latest('scheduled_start_at')
         ->get()
         ->map(static function (LiveSession $session) use ($userTierLevel, $userPlanSlug): array {
@@ -220,6 +359,31 @@ Route::get('/plans', static function () {
             ];
         })
         ->values();
+});
+
+Route::get('/membership-comparison-features', static function () {
+    return MembershipComparisonFeature::query()
+        ->published()
+        ->get(['id', 'name', 'begin', 'commit', 'transform', 'sadhana'])
+        ->values();
+});
+
+// Public CMS pages used by the footer legal links. Content is edited in
+// Admin > CMS > Pages and only published public records are returned.
+Route::get('/cms-pages/{slug}', static function (string $slug) {
+    $page = Page::query()->published()->where('slug', $slug)->first();
+
+    if (! $page) {
+        return response()->json(['message' => 'Page not found'], 404);
+    }
+
+    return response()->json([
+        'slug' => $page->slug,
+        'title' => $page->title,
+        'description' => $page->seo_description,
+        'html' => (string) data_get($page->content, 'html', ''),
+        'updated_at' => $page->updated_at?->toIso8601String(),
+    ]);
 });
 
 Route::get('/subscription-plans', static fn () => redirect('/api/plans'));

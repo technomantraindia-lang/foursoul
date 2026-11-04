@@ -14,6 +14,8 @@ use App\Filament\Resources\CertificateTemplateResource;
 use App\Filament\Resources\CertificateResource;
 use App\Filament\Resources\FaqResource;
 use App\Filament\Resources\LiveSessionResource;
+use App\Filament\Resources\MembershipComparisonFeatureResource;
+use App\Filament\Resources\PageResource;
 use App\Filament\Resources\SubscriptionPlanResource;
 use App\Filament\Resources\UserResource;
 use App\Filament\Widgets\DashboardQuickActionsWidget;
@@ -83,8 +85,10 @@ class AdminPanelProvider extends PanelProvider
             ->pages($pages)
             ->resources([
                 SubscriptionPlanResource::class,
+                MembershipComparisonFeatureResource::class,
                 LiveSessionResource::class,
                 FaqResource::class,
+                PageResource::class,
                 BlogPostResource::class,
                 CertificateResource::class,
                 CertificateTemplateResource::class,

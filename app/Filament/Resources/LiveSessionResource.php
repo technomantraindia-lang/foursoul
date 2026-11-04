@@ -51,6 +51,8 @@ class LiveSessionResource extends Resource
             Section::make('Content')
                 ->description('Add one live class link or video for your members.')
                 ->columns(['default' => 1, 'sm' => 2, 'lg' => 2])
+                ->columnSpanFull()
+                ->maxWidth('full')
                 ->schema([
                     Forms\Components\TextInput::make('title')
                         ->label('Title')
@@ -69,18 +71,35 @@ class LiveSessionResource extends Resource
                         ->options([
                             'video' => 'Video',
                             'meeting' => 'Meeting link',
+                            'timetable' => 'Daily Live Timetable',
                         ])
                         ->default('video')
                         ->required()
                         ->live()
-                        ->afterStateUpdated(function (Set $set, ?string $state): void {
-                            $set('video_type', $state === 'meeting' ? 'live_meeting' : 'youtube');
+                        ->afterStateUpdated(function (Set $set, Get $get, ?string $state): void {
+                            $set('video_type', match ($state) {
+                                'meeting' => 'live_meeting',
+                                'timetable' => 'member_timetable',
+                                default => 'youtube',
+                            });
                             $set('metadata.video_source', $state === 'video' ? 'youtube' : null);
                             $set('provider', $state === 'meeting' ? SessionProvider::Zoom->value : SessionProvider::Custom->value);
                             $set('meeting_url', null);
                             $set('meeting_password', null);
                             $set('video_url', null);
                             $set('video_file', null);
+                            if ($state === 'timetable') {
+                                $set('metadata.timetable', self::defaultTimetable());
+                                $set('min_plan_tier', 'all');
+                                $set('allowed_plans', []);
+                                $set('is_locked_for_non_members', false);
+                                if (blank($get('title'))) {
+                                    $set('title', 'Never Miss a Live Masterclass');
+                                }
+                                if (blank($get('description'))) {
+                                    $set('description', 'Interactive sessions held daily with real-time feedback.');
+                                }
+                            }
                             if ($state === 'video') {
                                 $set('scheduled_end_at', null);
                             }
@@ -116,8 +135,62 @@ class LiveSessionResource extends Resource
                         ->visible(fn (Get $get): bool => $get('metadata.content_kind') === 'meeting'),
 
                     Forms\Components\Textarea::make('description')
-                        ->label('Description')
+                        ->label('Description / intro copy')
                         ->rows(3)
+                        ->columnSpanFull(),
+
+                    Section::make('Timetable settings')
+                        ->description('Enter the schedule once in any one timezone. The membership page automatically converts it for IST, GST, EST, and GMT.')
+                        ->visible(fn (Get $get): bool => $get('metadata.content_kind') === 'timetable')
+                        ->schema([
+                            Forms\Components\TextInput::make('metadata.timetable.eyebrow')
+                                ->label('Small label')
+                                ->default('DAILY LIVE TIMETABLE')
+                                ->required()
+                                ->maxLength(100),
+
+                            Forms\Components\Select::make('metadata.timetable.source_timezone')
+                                ->label('Schedule timezone')
+                                ->options(collect(self::timezoneDefinitions())->mapWithKeys(
+                                    fn (array $timezone, string $code): array => [$code => "{$code} — {$timezone['full_name']} ({$timezone['location']})"]
+                                )->all())
+                                ->default('IST')
+                                ->required()
+                                ->helperText('Choose the one timezone you will use below. Other timezone times are generated automatically.'),
+
+                            Forms\Components\Repeater::make('metadata.timetable.sessions')
+                                ->label('Sessions — enter each one time only')
+                                ->default(self::defaultTimetable()['sessions'])
+                                ->schema([
+                                    Forms\Components\TextInput::make('time')
+                                        ->label('Time')
+                                        ->placeholder('06:00 AM - 07:00 AM')
+                                        ->required()
+                                        ->maxLength(80),
+                                    Forms\Components\TextInput::make('name')
+                                        ->label('Session title')
+                                        ->placeholder('Sunrise Surya & Pranayama')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('teacher')
+                                        ->label('Instructor')
+                                        ->placeholder('Aarav Sharma')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('level')
+                                        ->label('Level')
+                                        ->placeholder('All Levels')
+                                        ->required()
+                                        ->maxLength(80),
+                                ])
+                                ->columns(['default' => 1, 'sm' => 2, 'lg' => 4])
+                                ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+                                ->addActionLabel('Add session')
+                                ->reorderable()
+                                ->minItems(1)
+                                ->columnSpanFull(),
+                        ])
+                        ->columns(1)
                         ->columnSpanFull(),
 
                     Forms\Components\TextInput::make('meeting_url')
@@ -164,8 +237,9 @@ class LiveSessionResource extends Resource
                         ->label('Access')
                         ->options(fn (): array => SubscriptionPlan::query()->active()->ordered()->pluck('name', 'slug')->all())
                         ->helperText('Select one or more memberships that can access this content.')
-                        ->required()
+                        ->required(fn (Get $get): bool => $get('metadata.content_kind') !== 'timetable')
                         ->minItems(1)
+                        ->visible(fn (Get $get): bool => $get('metadata.content_kind') !== 'timetable')
                         ->columns(['default' => 1, 'sm' => 2])
                         ->columnSpanFull(),
 
@@ -211,14 +285,17 @@ class LiveSessionResource extends Resource
                     ->formatStateUsing(fn ($state, $record) => match ($record->metadata['content_kind'] ?? null) {
                         'meeting' => 'Meeting link',
                         'video' => 'Video',
+                        'timetable' => 'Daily timetable',
                         default => match ($state) {
                             'live_meeting' => 'Meeting link',
+                            'member_timetable' => 'Daily timetable',
                             'youtube', 'external_video', 'uploaded_video' => 'Video',
                             default => 'Content',
                         },
                     })
                     ->color(fn ($state) => match ($state) {
                         'live_meeting' => 'primary',
+                        'member_timetable' => 'success',
                         'youtube' => 'danger',
                         'external_video', 'uploaded_video' => 'success',
                         default => 'gray',
@@ -305,6 +382,16 @@ class LiveSessionResource extends Resource
                         LiveSessionStatus::Draft->value => 'Draft',
                         LiveSessionStatus::Scheduled->value => 'Published',
                     ]),
+                Tables\Filters\SelectFilter::make('content_kind')
+                    ->label('Content type')
+                    ->options([
+                        'timetable' => 'Daily Live Timetable',
+                        'meeting' => 'Meeting link',
+                        'video' => 'Video',
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
+                        ? $query->whereJsonContains('metadata->content_kind', $data['value'])
+                        : $query),
             ])
             ->headerActions([
                 \Filament\Actions\CreateAction::make()
@@ -360,5 +447,96 @@ class LiveSessionResource extends Resource
         // admin guard. Keep this true so the resource is not hidden while the
         // panel is building its navigation tree.
         return true;
+    }
+
+    /**
+     * Default values shown when an administrator creates a new timetable.
+     * The saved values live in the LiveSession metadata JSON column.
+     */
+    public static function timezoneDefinitions(): array
+    {
+        return [
+            'IST' => [
+                'full_name' => 'Indian Standard Time',
+                'location' => 'India',
+                'offset_minutes' => 330,
+            ],
+            'GST' => [
+                'full_name' => 'Gulf Standard Time',
+                'location' => 'UAE, Dubai',
+                'offset_minutes' => 240,
+            ],
+            'EST' => [
+                'full_name' => 'Eastern Standard Time',
+                'location' => 'USA, Canada',
+                'offset_minutes' => -300,
+            ],
+            'GMT' => [
+                'full_name' => 'Greenwich Mean Time',
+                'location' => 'United Kingdom',
+                'offset_minutes' => 0,
+            ],
+        ];
+    }
+
+    public static function defaultTimetable(): array
+    {
+        $defaults = [
+            'eyebrow' => 'DAILY LIVE TIMETABLE',
+            'timezones' => [
+                [
+                    'code' => 'IST',
+                    'label' => 'IST Time',
+                    'sessions' => [
+                        ['time' => '06:00 AM - 07:00 AM', 'name' => 'Sunrise Surya & Pranayama', 'teacher' => 'Aarav Sharma', 'level' => 'All Levels'],
+                        ['time' => '07:30 AM - 08:30 AM', 'name' => 'Dynamic Vinyasa Flow & Core', 'teacher' => 'Maya Kapoor', 'level' => 'Intermediate'],
+                        ['time' => '11:00 AM - 12:00 PM', 'name' => 'Therapeutic Spine & Joint Mobility', 'teacher' => 'Aarav Sharma', 'level' => 'Gentle'],
+                        ['time' => '06:30 PM - 07:30 PM', 'name' => 'Evening Stress Decompression', 'teacher' => 'Rhea Patel', 'level' => 'All Levels'],
+                        ['time' => '08:30 PM - 09:15 PM', 'name' => 'Yoga Nidra & Guided Sound Meditation', 'teacher' => 'Karan Mehra', 'level' => 'Restorative'],
+                    ],
+                ],
+                [
+                    'code' => 'GST',
+                    'label' => 'GST Time',
+                    'sessions' => [
+                        ['time' => '04:30 AM - 05:30 AM', 'name' => 'Sunrise Surya & Pranayama', 'teacher' => 'Aarav Sharma', 'level' => 'All Levels'],
+                        ['time' => '06:00 AM - 07:00 AM', 'name' => 'Dynamic Vinyasa Flow & Core', 'teacher' => 'Maya Kapoor', 'level' => 'Intermediate'],
+                        ['time' => '09:30 AM - 10:30 AM', 'name' => 'Therapeutic Spine & Joint Mobility', 'teacher' => 'Aarav Sharma', 'level' => 'Gentle'],
+                        ['time' => '05:00 PM - 06:00 PM', 'name' => 'Evening Stress Decompression', 'teacher' => 'Rhea Patel', 'level' => 'All Levels'],
+                        ['time' => '07:00 PM - 07:45 PM', 'name' => 'Yoga Nidra & Guided Sound Meditation', 'teacher' => 'Karan Mehra', 'level' => 'Restorative'],
+                    ],
+                ],
+                [
+                    'code' => 'EST',
+                    'label' => 'EST Time',
+                    'sessions' => [
+                        ['time' => '07:30 PM (Prev)', 'name' => 'Sunrise Surya & Pranayama', 'teacher' => 'Aarav Sharma', 'level' => 'All Levels'],
+                        ['time' => '09:00 PM (Prev)', 'name' => 'Dynamic Vinyasa Flow & Core', 'teacher' => 'Maya Kapoor', 'level' => 'Intermediate'],
+                        ['time' => '07:00 AM - 08:00 AM', 'name' => 'Morning Spine & Joint Mobility', 'teacher' => 'Maya Kapoor', 'level' => 'Gentle'],
+                        ['time' => '09:00 AM - 10:00 AM', 'name' => 'Awakening Vinyasa Flow', 'teacher' => 'Rhea Patel', 'level' => 'All Levels'],
+                        ['time' => '11:00 AM - 11:45 AM', 'name' => 'Midday Breathwork & Meditation', 'teacher' => 'Karan Mehra', 'level' => 'Restorative'],
+                    ],
+                ],
+                [
+                    'code' => 'GMT',
+                    'label' => 'GMT Time',
+                    'sessions' => [
+                        ['time' => '12:30 AM (Night)', 'name' => 'Sunrise Surya & Pranayama', 'teacher' => 'Aarav Sharma', 'level' => 'All Levels'],
+                        ['time' => '02:00 AM (Night)', 'name' => 'Dynamic Vinyasa Flow & Core', 'teacher' => 'Maya Kapoor', 'level' => 'Intermediate'],
+                        ['time' => '06:30 AM - 07:30 AM', 'name' => 'Morning Spine & Joint Mobility', 'teacher' => 'Aarav Sharma', 'level' => 'Gentle'],
+                        ['time' => '01:00 PM - 02:00 PM', 'name' => 'Afternoon Re-energize Flow', 'teacher' => 'Rhea Patel', 'level' => 'All Levels'],
+                        ['time' => '03:00 PM - 03:45 PM', 'name' => 'Yoga Nidra & Guided Sound Meditation', 'teacher' => 'Karan Mehra', 'level' => 'Restorative'],
+                    ],
+                ],
+            ],
+        ];
+
+        // Keep only one editable source schedule. The API creates the other
+        // timezone views from these sessions when the page is requested.
+        $defaults['source_timezone'] = 'IST';
+        $defaults['sessions'] = $defaults['timezones'][0]['sessions'];
+        unset($defaults['timezones']);
+
+        return $defaults;
     }
 }

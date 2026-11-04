@@ -4,7 +4,15 @@
 @section('meta_description', $page->seo_description)
 
 @section('content')
-    @forelse ($page->contentSections() as $section)
+    @if (filled(data_get($page->content, 'html')))
+        <section class="py-12">
+            <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+                <h1 class="text-4xl font-extrabold text-gray-900 mb-8">{{ $page->title }}</h1>
+                <div class="prose max-w-none">{!! data_get($page->content, 'html') !!}</div>
+            </div>
+        </section>
+    @else
+        @forelse ($page->contentSections() as $section)
         <section class="py-12">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 @if (! empty($section['heading'] ?? $section['title'] ?? null))
@@ -47,5 +55,6 @@
                 @endif
             </div>
         </section>
-    @endforelse
+        @endforelse
+    @endif
 @endsection

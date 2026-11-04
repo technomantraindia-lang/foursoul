@@ -35,16 +35,24 @@ const liveSchedules = {
   ],
 };
 
+const defaultScheduleContent = {
+  eyebrow: 'DAILY LIVE TIMETABLE',
+  title: 'Never Miss a Live Masterclass',
+  description: 'Interactive sessions held daily with real-time feedback.',
+  timezones: Object.fromEntries(
+    Object.entries(liveSchedules).map(([code, sessions]) => [code, { code, label: `${code} Time`, sessions }]),
+  ),
+};
+
 // Membership Comparison Matrix Rows
 const comparisonFeatures = [
   { name: 'Unlimited Daily Live Classes', begin: 'Yes', commit: 'Yes', transform: 'Yes', sadhana: 'Yes' },
   { name: 'On-Demand Yoga & Pranayama Vault', begin: 'Yes', commit: 'Yes', transform: 'Yes', sadhana: 'Yes' },
-  { name: 'Live Camera Posture Corrections', begin: 'Yes', commit: 'Yes', transform: 'Yes', sadhana: 'Yes' },
+  { name: 'Never Miss a Live Masterclass', begin: 'Yes', commit: 'Yes', transform: 'Yes', sadhana: 'Yes' },
   { name: 'Private Community Hub Access', begin: 'Yes', commit: 'Yes', transform: 'Yes', sadhana: 'Yes' },
   { name: '90-Day Habit & Consistency Tracker', begin: '—', commit: 'Yes', transform: 'Yes', sadhana: 'Yes' },
   { name: 'Therapeutic Spine & Joint Masterclass', begin: '—', commit: '—', transform: 'Yes', sadhana: 'Yes' },
   { name: 'Plan-Pause Flexibility (Freeze Days)', begin: '0 Days', commit: '7 Days', transform: '14 Days', sadhana: 'Up to 45 Days' },
-  { name: 'Complimentary 1-on-1 Master Guidance', begin: '—', commit: '—', transform: '1 Session', sadhana: '2x Private 1-on-1s' },
   { name: 'Weekend Sound Baths & Masterclasses', begin: '—', commit: '—', transform: 'Standard', sadhana: 'VIP Pass Included' },
   { name: 'Direct WhatsApp Teacher Hotline', begin: 'Standard', commit: 'Priority', transform: 'Priority', sadhana: 'Dedicated Master Concierge' },
 ];
@@ -81,8 +89,10 @@ export default function MembershipPage() {
   const [checkoutError, setCheckoutError] = useState('');
   const [checkoutSubmitting, setCheckoutSubmitting] = useState(false);
   const [selectedTimezone, setSelectedTimezone] = useState('IST');
+  const [scheduleContent, setScheduleContent] = useState(defaultScheduleContent);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [faqs, setFaqs] = useState(membershipFaqs);
+  const [comparisonFeatureRows, setComparisonFeatureRows] = useState(comparisonFeatures);
   const [pricingData, setPricingData] = useState(MEMBERSHIP_PRICING);
   const [currentUser, setCurrentUser] = useState(() => {
     try {
@@ -111,22 +121,24 @@ export default function MembershipPage() {
     window.addEventListener('foursouls_auth_changed', handleAuth);
     window.addEventListener('storage', handleAuth);
 
-    fetch('/api/auth/me', { headers: { Accept: 'application/json' }, credentials: 'include' })
-      .then((res) => {
-        if (res.ok) return res.json();
-        if (res.status === 401) {
-          localStorage.removeItem('foursouls_user');
-          setCurrentUser(null);
-        }
-        return null;
-      })
-      .then((data) => {
-        if (data?.user) {
-          setCurrentUser(data.user);
-          localStorage.setItem('foursouls_user', JSON.stringify(data.user));
-        }
-      })
-      .catch(() => {});
+    if (localStorage.getItem('foursouls_user')) {
+      fetch('/api/auth/me', { headers: { Accept: 'application/json' }, credentials: 'include' })
+        .then((res) => {
+          if (res.ok) return res.json();
+          if (res.status === 401) {
+            localStorage.removeItem('foursouls_user');
+            setCurrentUser(null);
+          }
+          return null;
+        })
+        .then((data) => {
+          if (data?.user) {
+            setCurrentUser(data.user);
+            localStorage.setItem('foursouls_user', JSON.stringify(data.user));
+          }
+        })
+        .catch(() => {});
+    }
 
     return () => {
       window.removeEventListener('foursouls_auth_changed', handleAuth);
@@ -150,7 +162,45 @@ export default function MembershipPage() {
         console.warn('Using default membership FAQs:', err);
       });
 
-    // 2. Fetch dynamic subscription plans from Laravel backend
+    // 2. Fetch the admin-managed membership comparison rows.
+    fetch('/api/membership-comparison-features')
+      .then((res) => {
+        if (!res.ok) throw new Error('API offline');
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setComparisonFeatureRows(data);
+        }
+      })
+      .catch((err) => {
+        console.warn('Using default membership comparison features:', err);
+      });
+
+    // 3. Fetch the admin-managed timetable, keeping the local schedule as a fallback.
+    fetch('/api/membership-schedule')
+      .then((res) => {
+        if (!res.ok) throw new Error('API offline');
+        return res.json();
+      })
+      .then((data) => {
+        const timezones = data?.timezones && !Array.isArray(data.timezones)
+          ? data.timezones
+          : {};
+        if (Object.keys(timezones).length > 0) {
+          setScheduleContent({
+            eyebrow: data.eyebrow || defaultScheduleContent.eyebrow,
+            title: data.title || defaultScheduleContent.title,
+            description: data.description || defaultScheduleContent.description,
+            timezones,
+          });
+        }
+      })
+      .catch((err) => {
+        console.warn('Using default membership timetable:', err);
+      });
+
+    // 4. Fetch dynamic subscription plans from Laravel backend
     fetch('/api/plans')
       .then((res) => {
         if (!res.ok) throw new Error('API offline');
@@ -192,6 +242,11 @@ export default function MembershipPage() {
         console.warn('Using default membership pricing:', err);
       });
   }, []);
+
+  const scheduleTimezones = scheduleContent.timezones || {};
+  const timezoneCodes = Object.keys(scheduleTimezones);
+  const activeTimezone = scheduleTimezones[selectedTimezone] ? selectedTimezone : (timezoneCodes[0] || 'IST');
+  const activeSchedule = scheduleTimezones[activeTimezone]?.sessions || [];
 
   const currKey = String(currency || 'inr').toLowerCase();
   const currentCurrencyData = pricingData[currKey] || pricingData.inr || MEMBERSHIP_PRICING[currKey] || MEMBERSHIP_PRICING.inr;
@@ -601,7 +656,7 @@ export default function MembershipPage() {
                 </tr>
               </thead>
               <tbody>
-                {comparisonFeatures.map((row, idx) => (
+                {comparisonFeatureRows.map((row, idx) => (
                   <tr key={row.name} className={`comparison-interactive-row ${idx % 2 === 0 ? 'row-even' : 'row-odd'}`}>
                     <td className="feature-name-cell">
                       <span className="feature-indicator-bullet" />
@@ -726,35 +781,35 @@ export default function MembershipPage() {
           <div className="schedule-box">
             <div className="schedule-header">
               <div>
-                <span className="section-eyebrow">DAILY LIVE TIMETABLE</span>
-                <h2>Never Miss a Live Masterclass</h2>
-                <p>Interactive sessions held daily with real-time feedback.</p>
+                <span className="section-eyebrow">{scheduleContent.eyebrow}</span>
+                <h2>{scheduleContent.title}</h2>
+                <p>{scheduleContent.description}</p>
               </div>
 
               {/* Timezone Switcher */}
               <div className="timezone-toggle-pills">
-                {['IST', 'GST', 'EST', 'GMT'].map((tz) => (
+                {timezoneCodes.map((tz) => (
                   <button
                     key={tz}
                     type="button"
-                    className={`tz-btn ${selectedTimezone === tz ? 'active' : ''}`}
+                    className={`tz-btn ${activeTimezone === tz ? 'active' : ''}`}
                     onClick={() => setSelectedTimezone(tz)}
                   >
-                    {tz} Time
+                    {scheduleTimezones[tz]?.label || `${tz} Time`}
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="schedule-list">
-              {liveSchedules[selectedTimezone].map((slot) => (
-                <div key={slot.name} className="schedule-item-row">
+              {activeSchedule.map((slot, index) => (
+                <div key={`${slot.time}-${slot.name}-${index}`} className="schedule-item-row">
                   <div className="slot-time-badge">
                     <span>⏰</span>
                     <strong>{slot.time}</strong>
                   </div>
                   <div className="slot-details">
-                    <h4>{slot.name}</h4>
+                    <h4>{slot.name || slot.title}</h4>
                     <span className="slot-teacher">Guided by {slot.teacher}</span>
                   </div>
                   <div className="slot-tag-pill">

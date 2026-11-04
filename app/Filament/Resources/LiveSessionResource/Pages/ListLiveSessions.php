@@ -36,8 +36,10 @@ class ListLiveSessions extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'draft')),
             'meetings' => Tab::make('Meeting links')
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('video_type', 'live_meeting')),
+            'timetables' => Tab::make('Timetables')
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->whereJsonContains('metadata->content_kind', 'timetable')),
             'videos' => Tab::make('Videos')
-                ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('video_type', '!=', 'live_meeting')),
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->whereNotIn('video_type', ['live_meeting', 'member_timetable'])),
         ];
     }
 }

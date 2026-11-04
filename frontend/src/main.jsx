@@ -216,22 +216,26 @@ function Header({ menuOpen, setMenuOpen }) {
     window.addEventListener('foursouls_auth_changed', handleAuth);
     window.addEventListener('storage', handleAuth);
 
-    fetch('/api/auth/me', { headers: { Accept: 'application/json' }, credentials: 'include' })
-      .then((response) => {
-        if (response.ok) return response.json();
-        if (response.status === 401) {
-          localStorage.removeItem('foursouls_user');
-          setUser(null);
-        }
-        return null;
-      })
-      .then((data) => {
-        if (data?.user) {
-          localStorage.setItem('foursouls_user', JSON.stringify(data.user));
-          setUser(data.user);
-        }
-      })
-      .catch(() => {});
+    // Avoid a noisy 401 request for guests. Authenticated visitors still get
+    // their session refreshed and invalid sessions are cleared as before.
+    if (localStorage.getItem('foursouls_user')) {
+      fetch('/api/auth/me', { headers: { Accept: 'application/json' }, credentials: 'include' })
+        .then((response) => {
+          if (response.ok) return response.json();
+          if (response.status === 401) {
+            localStorage.removeItem('foursouls_user');
+            setUser(null);
+          }
+          return null;
+        })
+        .then((data) => {
+          if (data?.user) {
+            localStorage.setItem('foursouls_user', JSON.stringify(data.user));
+            setUser(data.user);
+          }
+        })
+        .catch(() => {});
+    }
 
     return () => {
       window.removeEventListener('foursouls_auth_changed', handleAuth);
@@ -487,6 +491,77 @@ function CustomerLogin() {
 
 function About() { return <AboutUsPage />; }
 
+const LEGAL_FALLBACKS = {
+  'privacy-policy': {
+    title: 'Privacy Policy',
+    description: 'How FourSouls handles information used to operate your account and wellness experience.',
+    html: '<h2>Privacy at FourSouls</h2><p>This starter page is managed from the admin panel. Replace this copy with your approved Privacy Policy before launch.</p><h3>Information we use</h3><p>FourSouls may use information needed to create accounts, provide classes and memberships, process requests, and support your relationship with us.</p><h3>Contact</h3><p>Contact the FourSouls support team with privacy questions or requests about your information.</p>',
+  },
+  'terms-and-conditions': {
+    title: 'Terms & Conditions',
+    description: 'The terms that govern your use of FourSouls services, classes, and membership features.',
+    html: '<h2>Using FourSouls</h2><p>This starter page is managed from the admin panel. Replace this copy with your approved Terms & Conditions before launch.</p><h3>Our services</h3><p>FourSouls provides wellness content, live classes, courses, and membership features for personal use. Please use the service responsibly and follow any class-specific guidance.</p><h3>Contact</h3><p>Contact the FourSouls support team if you have questions about these terms.</p>',
+  },
+};
+
+function LegalPage({ slug }) {
+  const fallback = LEGAL_FALLBACKS[slug] || LEGAL_FALLBACKS['privacy-policy'];
+  const [page, setPage] = useState(fallback);
+  const isPrivacy = slug === 'privacy-policy';
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/cms-pages/${encodeURIComponent(slug)}`, { headers: { Accept: 'application/json' } })
+      .then((response) => {
+        if (!response.ok) throw new Error('CMS page unavailable');
+        return response.json();
+      })
+      .then((content) => {
+        if (!cancelled) setPage({ ...fallback, ...content });
+      })
+      .catch(() => {});
+
+    return () => { cancelled = true; };
+  }, [slug]);
+
+  return (
+    <main className="inner-page legal-page">
+      <section className="section-shell legal-page-hero">
+        <div className="legal-page-hero-copy">
+          <span className="eyebrow">FourSouls / legal</span>
+          <h1>{page.title}</h1>
+          <p className="page-lede">{page.description}</p>
+        </div>
+        <div className="legal-page-meta" aria-label="Page information">
+          <span className="legal-page-meta-label">FourSouls document</span>
+          <span>{page.updated_at ? 'Updated ' + new Date(page.updated_at).toLocaleDateString() : 'Public version'}</span>
+        </div>
+      </section>
+      <section className="section-shell legal-page-layout">
+        <aside className="legal-page-aside">
+          <span className="legal-aside-label">Document details</span>
+          <div className="legal-aside-rule" />
+          <p>{isPrivacy ? 'How we handle information and protect your relationship with FourSouls.' : 'The guidelines for using FourSouls classes, content, and membership services.'}</p>
+          <div className="legal-aside-note">
+            <span>Page status</span>
+            <strong>Published for members and visitors.</strong>
+          </div>
+        </aside>
+        <article className="legal-document-card">
+          <div className="legal-document-heading">
+            <span>FOURSOULS YOGA</span>
+            <span>{isPrivacy ? 'PRIVACY' : 'TERMS'}</span>
+          </div>
+          <div className="legal-rich-text" dangerouslySetInnerHTML={{ __html: page.html }} />
+          <div className="legal-document-end">
+            <span>End of document</span>
+          </div>
+        </article>
+      </section>
+    </main>
+  );
+}
+
 function PageIntro({ eyebrow, title, copy, children, dark = false }) { return <main className={`inner-page ${dark ? 'inner-page-dark' : ''}`}><section className="section-shell page-hero"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p className="page-lede">{copy}</p></section><section className="section-shell page-content">{children}</section><CTA /></main>; }
 
 function CTA() { return <section className="section-shell cta-section"><div className="cta-orbit"><span /><span /><span /></div><div className="cta-content"><span className="eyebrow eyebrow-light">Your next chapter is already moving.</span><h2>Make something<br /><em>meaningful.</em></h2><Button href="/courses" variant="light">Find your starting point</Button></div></section>; }
@@ -611,11 +686,10 @@ function Footer() {
             <div className="mobile-sub-links-row">
               <AppLink href="/about">FAQ</AppLink>
               <span>·</span>
-              <AppLink href="/about">Terms & Conditions</AppLink>
+              <AppLink href="/terms-and-conditions">Terms & Conditions</AppLink>
               <span>·</span>
-              <AppLink href="/about">Privacy</AppLink>
+              <AppLink href="/privacy-policy">Privacy Policy</AppLink>
               <span>·</span>
-              <AppLink href="/about">Refunds</AppLink>
             </div>
             <div className="mobile-newsletter-wrap">
               <p className="mobile-newsletter-text">Join Our Newsletter</p>
@@ -662,17 +736,10 @@ function Footer() {
           </div>
           <div className="footer-col">
             <h4>Support</h4>
-            <AppLink href="/about">Help Center</AppLink>
             <AppLink href="/about">Contact Us</AppLink>
             <AppLink href="/#faq">FAQ</AppLink>
-            <AppLink href="/about">Terms & Conditions</AppLink>
-          </div>
-          <div className="footer-col">
-            <h4>More</h4>
-            <AppLink href="/plans">Membership</AppLink>
-            <AppLink href="/blog">Journal</AppLink>
-            <AppLink href="/about">Privacy Policy</AppLink>
-            <AppLink href="/about">Refund Policy</AppLink>
+            <AppLink href="/terms-and-conditions">Terms & Conditions</AppLink>
+            <AppLink href="/privacy-policy">Privacy Policy</AppLink>
           </div>
           <div className="footer-col footer-col-newsletter">
             <h4>Join Our Newsletter</h4>
@@ -709,7 +776,7 @@ const ADMIN_GROUPS = [
     { label: 'Questions', path: '/questions', icon: 'question', description: 'Build your question bank' },
     { label: 'Quizzes', path: '/quizzes', icon: 'quiz', description: 'Configure tests and scoring' },
   ] },
-  { label: 'Subscriptions', items: [{ label: 'Subscription Plans', path: '/subscription-plans', icon: 'card', description: 'Pricing and access rules' }] },
+  { label: 'Subscriptions', items: [{ label: 'Subscription Plans', path: '/subscription-plans', icon: 'card', description: 'Pricing and access rules' }, { label: 'Comparison Features', path: '/membership-comparison-features', icon: 'list', description: 'Edit public membership comparison rows' }] },
   { label: 'Learning', items: [
     { label: 'Courses', path: '/courses', icon: 'book', description: 'Curriculum, sections and lessons' },
     { label: 'Member Content', path: '/member-content', icon: 'video', description: 'Manage member links and videos' },
@@ -730,6 +797,7 @@ function AdminIcon({ name }) {
     question: <><circle cx="12" cy="12" r="9" /><path d="M9.8 9a2.35 2.35 0 1 1 3.8 1.85c-1 .72-1.6 1.1-1.6 2.65M12 17h.01" /></>,
     quiz: <><path d="M7 3h10v4H7zM5 7h14v14H5z" /><path d="m8 14 2 2 5-5" /></>,
     card: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 10h18M7 15h4" /></>,
+    list: <><path d="M8 6h13M8 12h13M8 18h13" /><path d="M3 6h.01M3 12h.01M3 18h.01" /></>,
     book: <><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z" /><path d="M4 5.5v15" /></>,
     video: <><rect x="3" y="5" width="13" height="14" rx="2" /><path d="m16 10 5-3v10l-5-3z" /></>,
     image: <><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="9" r="1.5" /><path d="m4 17 5-5 3 3 2-2 7 6" /></>,
@@ -859,6 +927,8 @@ function App() {
     if (cleanPath === '/login' || cleanPath === '/customer/login') return <CustomerLoginProper />;
     if (cleanPath === '/register') return <CustomerRegisterProper />;
     if (cleanPath === '/member') return <MemberPortal />;
+    if (cleanPath === '/privacy-policy' || cleanPath === '/privacy') return <LegalPage slug="privacy-policy" />;
+    if (cleanPath === '/terms-and-conditions' || cleanPath === '/terms') return <LegalPage slug="terms-and-conditions" />;
     if (cleanPath === '/about' || cleanPath === '/about-us' || cleanPath === '/why-foursouls') return <About />;
     return <PageIntro eyebrow="404 / lost signal" title={<>This page took a <em>different orbit.</em></>} copy="Let's get you back to something useful."><Button href="/">Return home</Button></PageIntro>;
   }, [data, cleanPath, slug]);

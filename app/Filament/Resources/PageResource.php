@@ -60,11 +60,11 @@ class PageResource extends Resource
             ])->columns(2),
 
             Section::make('Content')
-                ->description('Homepage/body content is stored as JSON sections on the page row.')
+                ->description('Write the public page content here. Published pages are available from their footer links.')
                 ->schema([
-                    Forms\Components\Textarea::make('content.html')
+                    Forms\Components\RichEditor::make('content.html')
                         ->label('Page body')
-                        ->rows(8)
+                        ->helperText('HTML content is rendered on the public page.')
                         ->columnSpanFull(),
                 ]),
 

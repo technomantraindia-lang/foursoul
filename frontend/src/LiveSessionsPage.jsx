@@ -70,27 +70,29 @@ export default function LiveSessionsPage() {
 
   // 1. Fetch current user from /api/auth/me on load
   useEffect(() => {
-    fetch('/api/auth/me', {
-      headers: { Accept: 'application/json' },
-      credentials: 'include',
-    })
-      .then((res) => {
-        if (res.ok) return res.json();
-        if (res.status === 401) {
-          localStorage.removeItem('foursouls_user');
-          setCurrentUser(null);
-        }
-        return null;
+    if (localStorage.getItem('foursouls_user')) {
+      fetch('/api/auth/me', {
+        headers: { Accept: 'application/json' },
+        credentials: 'include',
       })
-      .then((data) => {
-        if (data?.user) {
-          setCurrentUser(data.user);
-          try {
-            localStorage.setItem('foursouls_user', JSON.stringify(data.user));
-          } catch {}
-        }
-      })
-      .catch(() => {});
+        .then((res) => {
+          if (res.ok) return res.json();
+          if (res.status === 401) {
+            localStorage.removeItem('foursouls_user');
+            setCurrentUser(null);
+          }
+          return null;
+        })
+        .then((data) => {
+          if (data?.user) {
+            setCurrentUser(data.user);
+            try {
+              localStorage.setItem('foursouls_user', JSON.stringify(data.user));
+            } catch {}
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   // 2. Fetch admin-added live sessions & videos from backend
