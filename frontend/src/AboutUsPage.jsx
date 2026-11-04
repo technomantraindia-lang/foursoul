@@ -173,14 +173,6 @@ export default function AboutUsPage() {
                 FourSouls was born from a simple belief — that everyone deserves access to the transformative power of yoga. What started as a small community has now grown into a global platform, helping thousands of people build healthier habits and happier lives.
               </p>
 
-              <button
-                type="button"
-                className="mockup-btn-navy story-explore-btn"
-                onClick={() => setGuideModalOpen(true)}
-              >
-                <span>Learn More</span>
-                <span className="btn-arrow-slide">→</span>
-              </button>
             </div>
 
             {/* Right Artwork: Dual Framed Composition */}
